@@ -59,14 +59,14 @@ The final states result in some token. The following is a list of which states c
 	\item S3: INT
 	\item S5: FLOAT
 	\item S6: ID (or one of mykeywords[] below)
-	\item S7: ID
-	\item S8: DIVISION
-	\item S12: COMMENT
-	\item S15: COMMENT
-	\item S16: EQ
-	\item S17: EQQ
-	\item S18: GT, ST
-	\item S19: GE, SE
+	\item S7: DIVISION
+	\item S11: discard '/*' and '*/' and return COMMENT
+	\item S13: discard '//' and return COMMENT
+	\item S14: EQ
+	\item S15: EQQ
+	\item S16: GT, ST
+	\item S17: GE, SE
+	\item S18: discard, since it is white spaces or new lines or tabs only
 \end{enumerate}
 
 The array of keywords in Token.cpp is as follows:
