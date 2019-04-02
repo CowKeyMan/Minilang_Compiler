@@ -14,8 +14,14 @@ class Token{
       COMMENT
     };
     TokenType type;
-    string text = "";
+    string lexeme = "";
     float number;
+    Token (TokenType _type, string _lexeme, float _number){
+      type = _type;
+      lexeme = _lexeme;
+      number = _number;
+    }
 };
 
-Token::TokenType keyword_or_id(string s);
+Token processAlpha(string lexeme);
+Token processNormalPunctuation(string lexeme);

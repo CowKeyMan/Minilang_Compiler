@@ -4,12 +4,12 @@
 #include <iostream>
 
 // Used to check if a given string is a keyword (or identifier), and what type of keyword it is
-struct Keyword{
+struct keyword_token{
   string text;
   Token::TokenType tok_type;
 };
 
-Keyword mykeywords[] = {
+keyword_token my_keywords[] = {
   {"and", Token::AND},
   {"or", Token::OR},
   {"not", Token::NOT},
@@ -27,11 +27,37 @@ Keyword mykeywords[] = {
   {"false", Token::BOOL}
 };
 
-Token::TokenType keyword_or_id(string s){
-  for(int i = 0; i < arraysize(mykeywords); ++i){
-    if(s == mykeywords[i].text){
-      return mykeywords[i].tok_type;
+Token processAlpha(string lexeme){
+  for(int i = 0; i < arraysize(my_keywords); ++i){
+    if(lexeme == my_keywords[i].text){
+      return Token(my_keywords[i].tok_type, lexeme, 0.0f);
     }
   }
-  return Token::ID;
+  return Token(Token::ID, lexeme, 0.0f);
+}
+
+//struct used to assign tokens to normal punctuation
+struct character_token{
+  char character;
+  Token::TokenType token;
+};
+
+character_token normal_punctuation[] = {
+  {'+', Token::PLUS},
+  {'(', Token::OPEN_BRACKET},
+  {')', Token::CLOSED_BRACKET},
+  {'{', Token::OPEN_BRACE},
+  {'}', Token::CLOSED_BRACE},
+  {';', Token::SEMI_COLON},
+  {',', Token::COMMA},
+  {'<', Token::ST},
+  {'>', Token::GT}
+};
+// given column 0 (+(){};:), it needs to check which one of these and assign a token
+Token processNormalPunctuation(string lexeme){
+  for(int i = 0; i < arraysize(normal_punctuation); ++i){
+    if(lexeme[0] == normal_punctuation[i].character){
+      return {normal_punctuation[i].token, lexeme, 0.0f};
+    }
+  }
 }

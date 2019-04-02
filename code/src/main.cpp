@@ -25,12 +25,14 @@ int main(){
   atexit(cleanup);
 
   file = new string();
-  readFile(*file);
+  // readFile(*file);
 
-  // cout << file;
-
-  cout << keyword_or_id("if");
-  Token a;
+  // cout << std::stof(".45");
+  string lexeme = "/* abcdefg */";
+  string temp;
+  int lexeme_length = lexeme.length();
+  temp.assign(lexeme, 2, lexeme_length-4); // trim '//'
+  cout << temp;
 }
 
 void cleanup(){
