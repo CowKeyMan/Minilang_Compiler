@@ -1,39 +1,49 @@
 #include "Lexer.h"
 #include "../Helper/Helper.h"
 #include <iostream>
+#include "string.h"
 
 Lexer::Lexer(string _file){
   file = _file;
-  fileIndex = 0;
-}
-
-char Lexer::nextChar(){
-  return file[fileIndex++];
 }
 
 void Lexer::lex(){
+  int fileIndex = 0;
   char c;
   State state = STA; // start state
 
   string lexeme = "";
 
   do{ // read character by character until end of file
-    char c = nextChar();
-    lineNumber++;
+    char c = file[fileIndex++]; // get next character
+
+    if(c == '\n' && lexeme.size() == 1){
+      lineNumber++;
+    }
+
     State newState = transitionTable[state] [getColumn(c)];
-    if(newState = ERR){ // if at an error state
+    
+    if(newState == ERR){ // if at an error state
       process_lexeme(lexeme, state);
-      lexeme = c; //start new lexeme with c
+      fileIndex--; // reduce file index by 1 to reread character
+      // reset for new lexeme
+      state = STA;
+      lexeme = "";
     }else{
       lexeme += c; // append c to lexeme
       state = newState;
     }
-  }while(c != EOF);
+  }while(fileIndex < file.size());
+}
+
+vector<Token> Lexer::get_tokens(){
+  return tokens;
 }
 
 int Lexer::getColumn(char c){
   switch (c){
     case '+':
+    case '-':
     case '(':
     case ')':
     case '{':
@@ -68,6 +78,7 @@ int Lexer::getColumn(char c){
       return 8;
     break;
 
+    case '\r':
     case ' ':
     case '\t':
       return 9;
@@ -90,8 +101,10 @@ int Lexer::getColumn(char c){
 }
 
 void Lexer::process_lexeme(string lexeme, State state){
-  string temp; // needed in cases S10 and S12
-  int lexeme_length; // needed in cases S10 and S12
+  // needed in cases S10 and S12 (for comments)
+  string temp;
+  int lexeme_length;
+  char delimeters[] = {' ', '\t', '\n', '\r'}; 
 
   switch(state){
     case S00: // +(){};:
@@ -121,13 +134,13 @@ void Lexer::process_lexeme(string lexeme, State state){
     case S10: // multi line comment
       lexeme_length = lexeme.length();
       temp.assign(lexeme, 2, lexeme_length-4); // trim '/*' and '*/'
-      tokens.push_back(Token(Token::COMMENT, temp, 0.0f));
+      tokens.push_back(Token(Token::COMMENT, trimString(temp, delimeters), 0.0f));
     break;
  
     case S12: // single line comment
       lexeme_length = lexeme.length();
       temp.assign(lexeme, 2, lexeme_length-2); // trim '//'
-      tokens.push_back(Token(Token::COMMENT, temp, 0.0f));
+      tokens.push_back(Token(Token::COMMENT, trimString(temp, delimeters), 0.0f));
     break;
 
     case S13: // =
@@ -144,9 +157,9 @@ void Lexer::process_lexeme(string lexeme, State state){
 
     case S16: // <= >=
       if(lexeme == "<="){
-        tokens.push_back(Token(Token::ST, lexeme, 0.0f));
+        tokens.push_back(Token(Token::SE, lexeme, 0.0f));
       }else{
-        tokens.push_back(Token(Token::GT, lexeme, 0.0f));
+        tokens.push_back(Token(Token::GE, lexeme, 0.0f));
       }
     break;
 
@@ -155,9 +168,8 @@ void Lexer::process_lexeme(string lexeme, State state){
     break;
 
     default:
-      std::cerr << "Invalid lexeme";
+      std::cerr << "Invalid lexeme " << lexeme.size() << " at line " << lineNumber << "\n";
       exit(EXIT_FAILURE);
     break;
   }
 }
-

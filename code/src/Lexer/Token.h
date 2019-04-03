@@ -4,6 +4,7 @@ using std::string;
 
 class Token{
   public:
+    static string TokenString[];
     enum TokenType{
       ID, BOOL, FLOAT, INT, // ID and constants
       ST, SE, GT, GE, EQQ, NE, AND, OR, NOT, // conditional operators
@@ -21,6 +22,7 @@ class Token{
       lexeme = _lexeme;
       number = _number;
     }
+    void printToken();
 };
 
 Token processAlpha(string lexeme);
