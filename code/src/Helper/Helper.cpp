@@ -3,11 +3,11 @@
 
 using std::cout;
 
-string trimString(string s, const char delimeters[]){// trim string of start and end delimeters
+string trimString(string s, const char delimeters[]){ // trim string of start and end delimeters
   bool cont = false;
   do{
     for(int d = 0; d < strlen(delimeters); d++){
-      if(s[0] == delimeters[d]){ // trim first letter each tme if it matches the delimeter
+      if(s[0] == delimeters[d]){ // trim first letter each time if it matches the delimeter
         s.erase(0, 1);
         bool cont = true;
       }

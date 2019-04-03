@@ -3,6 +3,22 @@
 #include <stdlib.h>
 #include <iostream>
 
+using std::cout;
+
+string Token::TokenString[] = {
+  "ID", "BOOL", "FLOAT", "INT", // ID and constants
+  "ST", "SE", "GT", "GE", "EQQ", "NE", "AND", "OR", "NOT", // conditional operators
+  "EQ", "PLUS", "MINUS", "TIMES", "DIVISION", //arithmetic operators
+  "IF", "ELSE", "FOR", "WHILE", "FN", "RETURN", "TYPE_BOOL", "TYPE_FLOAT", "TYPE_INT", "VAR", //keywords
+  "COLON", "SEMI_COLON", "COMMA", //punctuation
+  "OPEN_BRACKET", "CLOSED_BRACKET", "OPEN_BRACE", "CLOSED_BRACE", //brackets punctuation
+  "COMMENT"
+};
+
+void Token::printToken(){
+  cout << "<" << lexeme << ", " << TokenString[type] << ", " << number << ">\n";
+}
+
 // Used to check if a given string is a keyword (or identifier), and what type of keyword it is
 struct keyword_token{
   string text;
@@ -56,7 +72,7 @@ character_token normal_punctuation[] = {
   {'>', Token::GT},
   {'*', Token::TIMES}
 };
-// given column 0 (+(){};:), it needs to check which one of these and assign a token
+
 Token processNormalPunctuation(string lexeme){
   for(int i = 0; i < arraysize(normal_punctuation); ++i){
     if(lexeme[0] == normal_punctuation[i].character){
@@ -64,17 +80,3 @@ Token processNormalPunctuation(string lexeme){
     }
   }
 }
-
-void Token::printToken(){
-  std::cout << "<" << lexeme << ", " << TokenString[type] << ", " << number << ">\n";
-}
-
-string Token::TokenString[] = {
-  "ID", "BOOL", "FLOAT", "INT", // ID and constants
-  "ST", "SE", "GT", "GE", "EQQ", "NE", "AND", "OR", "NOT", // conditional operators
-  "EQ", "PLUS", "MINUS", "TIMES", "DIVISION", //arithmetic operators
-  "IF", "ELSE", "FOR", "WHILE", "FN", "RETURN", "TYPE_BOOL", "TYPE_FLOAT", "TYPE_INT", "VAR", //keywords
-  "COLON", "SEMI_COLON", "COMMA", //punctuation
-  "OPEN_BRACKET", "CLOSED_BRACKET", "OPEN_BRACE", "CLOSED_BRACE", //brackets punctuation
-  "COMMENT"
-};

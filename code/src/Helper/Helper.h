@@ -7,8 +7,11 @@ using std::string;
 template <typename T,unsigned S>
 inline unsigned arraysize(const T (&v)[S]) { return S; }
 
-void cleanup(); // method to be called at exit (example: free up pointers)
+// method to be called at exit (example: free up pointers)
+void cleanup(); 
 
-string trimString(string s, const char delimeters[]); // trim string of start and end delimeters
+// trim string of start and end delimeters
+string trimString(string s, const char delimeters[]); 
 
-void viewStringAsASCII(string s); // for debugging purposes (detected CRLF)
+// for debugging purposes. given a string, prints it's ASCII integer values
+void viewStringAsASCII(string s); 

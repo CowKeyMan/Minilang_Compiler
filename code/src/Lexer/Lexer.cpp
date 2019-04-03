@@ -3,41 +3,42 @@
 #include <iostream>
 #include "string.h"
 
-Lexer::Lexer(string _file){
-  file = _file;
-}
+using std::cerr;
 
 void Lexer::lex(){
-  int fileIndex = 0;
-  char c;
-  State state = STA; // start state
-
-  string lexeme = "";
+  int fileIndex = 0; // index in the file. Increased by 1 with each character read
+  char c; // the current character being read
+  State state = STA; // the current state. Starts at the start state
+  string lexeme = ""; // the current lexeme. Starts off empty
 
   do{ // read character by character until end of file
     char c = file[fileIndex++]; // get next character
 
-    if(c == '\n' && lexeme.size() == 1){
-      lineNumber++;
+    if(c == '\n'){
+      lineNumber++; // for debugging
     }
 
     State newState = transitionTable[state] [getColumn(c)];
     
-    if(newState == ERR){ // if at an error state
-      process_lexeme(lexeme, state);
-      fileIndex--; // reduce file index by 1 to reread character
+    if(newState == ERR){ // if at an error state (end of lexeme)
+      process_lexeme(lexeme, state); // adds lexeme as a token to the tokens vector
+      
+      // reduce file index by 1 to reread current character since it lead to an error state
+      fileIndex--; 
+
+      // reduce line number or you get \n read twice
+      if(c == '\n'){
+        lineNumber--;
+      }
+      
       // reset for new lexeme
       state = STA;
       lexeme = "";
-    }else{
+    }else{ // if lexeme is still not over
       lexeme += c; // append c to lexeme
       state = newState;
     }
   }while(fileIndex < file.size());
-}
-
-vector<Token> Lexer::get_tokens(){
-  return tokens;
 }
 
 int Lexer::getColumn(char c){
@@ -107,7 +108,7 @@ void Lexer::process_lexeme(string lexeme, State state){
   char delimeters[] = {' ', '\t', '\n', '\r'}; 
 
   switch(state){
-    case S00: // +(){};:
+    case S00: // +-(){};:
       tokens.push_back(processNormalPunctuation(lexeme));
     break;
 
@@ -163,13 +164,19 @@ void Lexer::process_lexeme(string lexeme, State state){
       }
     break;
 
-    case S17: //empty characters
+    case S17: // empty characters
       // do nothing
     break;
 
     default:
-      std::cerr << "Invalid lexeme " << lexeme.size() << " at line " << lineNumber << "\n";
+      cerr << "Invalid lexeme " << lexeme.size() << " at line " << lineNumber << "\n";
       exit(EXIT_FAILURE);
     break;
+  }
+}
+
+void Lexer::printTokens(){
+  for(int i = 0; i < tokens.size(); ++i){
+    tokens[i].printToken();
   }
 }
