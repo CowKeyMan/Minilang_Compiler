@@ -1,6 +1,6 @@
+#include <iostream>
 #include "Lexer.h"
 #include "../Helper/Helper.h"
-#include <iostream>
 #include "string.h"
 
 using std::cerr;
@@ -109,58 +109,58 @@ void Lexer::process_lexeme(string lexeme, State state){
 
   switch(state){
     case S00: // +-(){};:
-      tokens.push_back(processNormalPunctuation(lexeme));
+      tokens.push_back(processNormalPunctuation(lexeme, lineNumber));
     break;
 
     case S02: // !=
-      tokens.push_back(Token(Token::NE, lexeme, 0.0f));
+      tokens.push_back(Token(NE, lexeme, 0.0f, lineNumber));
     break;
     
     case S03: // integer
-      tokens.push_back(Token(Token::INT, lexeme, stoi(lexeme)));
+      tokens.push_back(Token(INT, lexeme, stoi(lexeme), lineNumber));
     break;
     
     case S05: // float
-      tokens.push_back(Token(Token::FLOAT, lexeme, stof(lexeme)));
+      tokens.push_back(Token(FLOAT, lexeme, stof(lexeme), lineNumber));
     break;
     
     case S06: // random string (keyword or alpha)
-      tokens.push_back(processAlpha(lexeme));
+      tokens.push_back(processAlpha(lexeme, lineNumber));
     break;
     
     case S07: // /
-      tokens.push_back(Token(Token::DIVISION, lexeme, 0.0f));
+      tokens.push_back(Token(DIVISION, lexeme, 0.0f, lineNumber));
     break;
     
     case S10: // multi line comment
       lexeme_length = lexeme.length();
       temp.assign(lexeme, 2, lexeme_length-4); // trim '/*' and '*/'
-      tokens.push_back(Token(Token::COMMENT, trimString(temp, delimeters), 0.0f));
+      tokens.push_back(Token(COMMENT, trimString(temp, delimeters), 0.0f, lineNumber));
     break;
  
     case S12: // single line comment
       lexeme_length = lexeme.length();
       temp.assign(lexeme, 2, lexeme_length-2); // trim '//'
-      tokens.push_back(Token(Token::COMMENT, trimString(temp, delimeters), 0.0f));
+      tokens.push_back(Token(COMMENT, trimString(temp, delimeters), 0.0f, lineNumber));
     break;
 
     case S13: // =
-      tokens.push_back(Token(Token::EQ, lexeme, 0.0f));
+      tokens.push_back(Token(EQ, lexeme, 0.0f, lineNumber));
     break;
 
     case S14: // ==
-      tokens.push_back(Token(Token::EQQ, lexeme, 0.0f));
+      tokens.push_back(Token(EQQ, lexeme, 0.0f, lineNumber));
     break;
 
     case S15: // <>
-      tokens.push_back(processNormalPunctuation(lexeme));
+      tokens.push_back(processNormalPunctuation(lexeme, lineNumber));
     break;
 
     case S16: // <= >=
       if(lexeme == "<="){
-        tokens.push_back(Token(Token::SE, lexeme, 0.0f));
+        tokens.push_back(Token(SE, lexeme, 0.0f, lineNumber));
       }else{
-        tokens.push_back(Token(Token::GE, lexeme, 0.0f));
+        tokens.push_back(Token(GE, lexeme, 0.0f, lineNumber));
       }
     break;
 

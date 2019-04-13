@@ -1,7 +1,7 @@
-#include "Token.h"
-#include "../Helper/helper.h"
 #include <stdlib.h>
 #include <iostream>
+#include "Token.h"
+#include "../Helper/helper.h"
 
 using std::cout;
 
@@ -16,67 +16,67 @@ string Token::TokenString[] = {
 };
 
 void Token::printToken(){
-  cout << "<" << lexeme << ", " << TokenString[type] << ", " << number << ">\n";
+  cout << "<" << lexeme << ", " << Token::TokenString[type] << ", " << number << ">\n";
 }
 
 // Used to check if a given string is a keyword (or identifier), and what type of keyword it is
 struct keyword_token{
   string text;
-  Token::TokenType tok_type;
+  TokenType tok_type;
 };
 
 keyword_token my_keywords[] = {
-  {"and", Token::AND},
-  {"or", Token::OR},
-  {"not", Token::NOT},
-  {"if", Token::IF},
-  {"else", Token::ELSE},
-  {"for", Token::FOR},
-  {"while", Token::WHILE},
-  {"fn", Token::FN},
-  {"return", Token::RETURN},
-  {"bool", Token::TYPE_BOOL},
-  {"float", Token::TYPE_FLOAT},
-  {"int", Token::TYPE_INT},
-  {"var", Token::VAR},
-  {"true", Token::BOOL},
-  {"false", Token::BOOL}
+  {"and", AND},
+  {"or", OR},
+  {"not", NOT},
+  {"if", IF},
+  {"else", ELSE},
+  {"for", FOR},
+  {"while", WHILE},
+  {"fn", FN},
+  {"return", RETURN},
+  {"bool", TYPE_BOOL},
+  {"float", TYPE_FLOAT},
+  {"int", TYPE_INT},
+  {"var", VAR},
+  {"true", BOOL},
+  {"false", BOOL}
 };
 
-Token processAlpha(string lexeme){
+Token processAlpha(string lexeme, int lineNumber){
   for(int i = 0; i < arraysize(my_keywords); ++i){
     if(lexeme == my_keywords[i].text){
-      return Token(my_keywords[i].tok_type, lexeme, 0.0f);
+      return Token(my_keywords[i].tok_type, lexeme, 0.0f, lineNumber);
     }
   }
-  return Token(Token::ID, lexeme, 0.0f);
+  return Token(ID, lexeme, 0.0f, lineNumber);
 }
 
 //struct used to assign tokens to normal punctuation
 struct character_token{
   char character;
-  Token::TokenType token;
+  TokenType token;
 };
 
 character_token normal_punctuation[] = {
-  {'+', Token::PLUS},
-  {'-', Token::MINUS},
-  {'(', Token::OPEN_BRACKET},
-  {')', Token::CLOSED_BRACKET},
-  {'{', Token::OPEN_BRACE},
-  {'}', Token::CLOSED_BRACE},
-  {':', Token::COLON},
-  {';', Token::SEMI_COLON},
-  {',', Token::COMMA},
-  {'<', Token::ST},
-  {'>', Token::GT},
-  {'*', Token::TIMES}
+  {'+', PLUS},
+  {'-', MINUS},
+  {'(', OPEN_BRACKET},
+  {')', CLOSED_BRACKET},
+  {'{', OPEN_BRACE},
+  {'}', CLOSED_BRACE},
+  {':', COLON},
+  {';', SEMI_COLON},
+  {',', COMMA},
+  {'<', ST},
+  {'>', GT},
+  {'*', TIMES}
 };
 
-Token processNormalPunctuation(string lexeme){
+Token processNormalPunctuation(string lexeme, int lineNumber){
   for(int i = 0; i < arraysize(normal_punctuation); ++i){
     if(lexeme[0] == normal_punctuation[i].character){
-      return {normal_punctuation[i].token, lexeme, 0.0f};
+      return Token(normal_punctuation[i].token, lexeme, 0.0f, lineNumber);
     }
   }
 }

@@ -1,8 +1,11 @@
-#include "Helper/helper.h"
-#include "Lexer/Lexer.h"
-
 #include <iostream>
 #include <fstream>
+#include <memory>
+#include <vector>
+
+#include "Helper/helper.h"
+#include "Lexer/Lexer.h"
+#include "Parser/Parser.h"
 
 #define TEST_LEXER
 #define FILENAME "InputFiles/LexerTestInput.txt"
@@ -13,21 +16,25 @@ using std::string;
 using std::istreambuf_iterator;
 using std::ifstream;
 using std::unique_ptr;
+using std::vector;
 
 // read the file specified by the filename and assign it to s
 void readFile(string &s);
 
 unique_ptr<string> file;
 unique_ptr<Lexer> lexer;
+unique_ptr<Parser> parser;
+
+vector<Token> tokens;
 
 int main(){
-  atexit(cleanup);
   // Lexer
   file = unique_ptr<string>( new string() );
   readFile(*file);
   
   lexer = unique_ptr<Lexer>( new Lexer(*file) );
   lexer->lex();
+  tokens = lexer->get_tokens();
 #ifdef TEST_LEXER
   lexer->printTokens(); // for debugging purposes
 #endif
@@ -35,7 +42,11 @@ int main(){
   lexer.reset(); // freeing pointer optimistions
 
   // Parser
-  
+  parser = unique_ptr<Parser>( new Parser(&tokens) );
+  // parser->parse();
+
+  parser.reset(); // freeing pointer optimistions
+  tokens = vector<Token>(); // reset tokens vector to free up memory
 }
 
 void readFile(string &s){
