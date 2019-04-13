@@ -5,7 +5,7 @@
 #include <memory>
 
 #include "../Lexer/Token.h"
-#include "ASTNode.h"
+#include "AST.h"
 
 using std::vector;
 using std::unique_ptr;

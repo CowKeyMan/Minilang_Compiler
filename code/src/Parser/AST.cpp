@@ -1,7 +1,13 @@
-#include "ASTNode.h"
+#include "AST.h"
 
 bool ASTNode::parseOptional(){
   if(tokenManager->peekToken() == nullptr) return false;
+
+  // is the start tokens are empty (any token goes), no need to check
+  if(startTokens().size() == 0){
+    parse();
+    return true;
+  }
 
   TokenType tt = tokenManager->peekToken()->type;
   for(int i = 0; i < startTokens().size(); ++i){
