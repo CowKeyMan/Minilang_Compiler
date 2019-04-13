@@ -1,9 +1,15 @@
 #include "TokenManager.h"
 
-Token TokenManager::nextToken(){
-  return tokens->at(tokenIndex++);
+Token *TokenManager::nextToken(){
+  if(tokenIndex+1 < tokens->size()){
+    return &tokens->at(tokenIndex++);
+  }
+  return nullptr;
 }
 
-Token TokenManager::peekToken(){
-  return tokens->at(tokenIndex);
+Token *TokenManager::peekToken(){
+  if(tokenIndex+1 < tokens->size()){
+    return &tokens->at(tokenIndex + 1);
+  }
+  return nullptr;
 }

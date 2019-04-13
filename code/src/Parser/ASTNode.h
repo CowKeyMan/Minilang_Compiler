@@ -11,7 +11,7 @@ class ASTNode{
     ASTNode(shared_ptr<TokenManager> _tokenManager){ tokenManager = _tokenManager; };
     virtual ~ASTNode(void){};
     virtual void parse() = 0;
-    void parseOptional();
+    bool parseOptional();
     void parseMultiple();
   protected:
     shared_ptr<TokenManager> tokenManager;

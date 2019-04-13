@@ -9,6 +9,6 @@ class TokenManager{
     vector<Token> *tokens; // Token queue
   public:
     TokenManager(vector<Token> *tokens){ TokenManager::tokens = tokens; };
-    Token nextToken(); // Dequeue and return next token
-    Token peekToken(); // See what the next token is without dequeuing it
+    Token *nextToken(); // Dequeue and return next token
+    Token *peekToken(); // See what the next token is without dequeuing it
 };
