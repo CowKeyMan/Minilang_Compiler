@@ -169,7 +169,7 @@ void Lexer::process_lexeme(string lexeme, State state){
     break;
 
     default:
-      cerr << "Invalid lexeme " << lexeme.size() << " at line " << lineNumber << "\n";
+      cerr << "Lexing error: Invalid lexeme " << lexeme.size() << " at line " << lineNumber << "\n";
       exit(EXIT_FAILURE);
     break;
   }

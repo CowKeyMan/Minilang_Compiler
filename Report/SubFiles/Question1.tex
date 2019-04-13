@@ -112,6 +112,18 @@ keyword_token my_keywords[] = {
 };
 \end{lstlisting}
 
+The Lexer's \textit{Lex()} function does the following:
+\begin{enumerate}
+	\item Initialise state to the start state
+	\item Initialise lexeme to the empty string
+	\item Until EOF:
+	\item \quad Read next character from the file
+	\item \quad See to which column in the table this character points to, and use the current state as the row value to go to the new state
+	\item \quad If at en error state
+	\item \quad \quad Check if the the lexeme is valid with the previous state before the error state. If it is invalid, report the error, otherwise reset the lexeme and the state and go to step 3
+	\item \quad else set the state as the one obtained from step 5 as the next state and append the character to the lexeme. Go back to step 3
+\end{enumerate}
+
 \subsection{Example Test}
 Using the \textit{printToken()} in the \textit{Token} class \textit{printTokens()} method in the \textit{Lexer} class, when the following input is given to the program:
 \begin{lstlisting}

@@ -12,25 +12,27 @@ using std::cerr;
 using std::string;
 using std::istreambuf_iterator;
 using std::ifstream;
+using std::unique_ptr;
 
 // read the file specified by the filename and assign it to s
 void readFile(string &s);
 
-string *file;
+unique_ptr<string> file;
+unique_ptr<Lexer> lexer;
+
 int main(){
   atexit(cleanup);
-
   // Lexer
-  file = new string();
+  file = unique_ptr<string>( new string() );
   readFile(*file);
   
-  Lexer lexer = Lexer(*file);
-  lexer.lex();
+  lexer = unique_ptr<Lexer>( new Lexer(*file) );
+  lexer->lex();
 #ifdef TEST_LEXER
-  lexer.printTokens(); // for debugging purposes
+  lexer->printTokens(); // for debugging purposes
 #endif
-
-  delete file;  
+  file.reset();
+  lexer.reset(); // freeing pointer optimistions
 
   // Parser
   
@@ -47,11 +49,5 @@ void readFile(string &s){
     // if the file could not be read report the error and exit
     cerr << "Error, could not read file\n";
     exit(EXIT_FAILURE);
-  }
-}
-
-void cleanup(){
-  if(file){
-    delete file;
   }
 }
