@@ -23,7 +23,7 @@ class ASTNodeProgram : virtual public ASTNode{
   public:
     // costructor is same as parent
     ASTNodeProgram(shared_ptr<TokenManager> tokenManger) : ASTNode(tokenManager) {};
-    virtual ~ASTNodeProgram(void){};
+    virtual ~ASTNodeProgram(void);
     virtual bool parse(); // returns true if parse was successful
   protected:
     vector<TokenType> startTokens(){ return _startTokens; };
@@ -36,7 +36,7 @@ class ASTNodeStatement : virtual public ASTNode{
   public:
     // costructor is same as parent
     ASTNodeStatement(shared_ptr<TokenManager> tokenManger) : ASTNode(tokenManager) {};
-    virtual ~ASTNodeStatement(void){};
+    virtual ~ASTNodeStatement(void);
     virtual bool parse(); // returns true if parse was successful
   protected:
     vector<TokenType> startTokens(){ return _startTokens; };

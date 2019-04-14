@@ -7,9 +7,17 @@ Token *TokenManager::nextToken(){
   return nullptr;
 }
 
-Token *TokenManager::peekToken(){
-  if(tokenIndex+1 < tokens->size()){
-    return &tokens->at(tokenIndex + 1);
+Token *TokenManager::peekToken(int steps){
+  if(tokenIndex+steps < tokens->size()){
+    return &tokens->at(tokenIndex + steps);
   }
   return nullptr;
+}
+
+Token *TokenManager::peekToken(){
+  return peekToken(1);
+}
+
+Token *TokenManager::currentToken(){
+  return peekToken(0);
 }
