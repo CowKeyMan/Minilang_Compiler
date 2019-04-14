@@ -2,6 +2,8 @@
 \subsection{Explanation and Implementation}
 The Lexer tokenizes the input stream by taking in character by character, grouping then into ordered tokens. A token is a tuple of (Lexeme, Attribute).
 
+For the implementation, the entire file string is traversed and a vector of tokens is created. Errors are reported by line number. For the sake of debugging future errors (not lexer related), the tokens are also given a line number variable. The reason for this is so that the file can be closed and the string discarded as soon as the lexer finishes.
+
 The following transition groups fo the characters were chosen (This is also the Classifier Table):
 \begin{enumerate}
 	\item Singular punctuation (punctuation which exists on its own): + - ( ) \textbraceleft \textbraceright ; $\colon$ ,
@@ -38,31 +40,23 @@ The token class is the following (Found in the Token.h file):
 \begin{lstlisting}[language=C++]
 class Token{
 	public:
-		static string TokenString[]; // Stings corresponding to the enum of token types
-		enum TokenType{
-		ID, BOOL, FLOAT, INT, // ID and constants
-		ST, SE, GT, GE, EQQ, NE, AND, OR, NOT, // conditional operators
-		EQ, PLUS, MINUS, TIMES, DIVISION, //arithmetic operators
-		IF, ELSE, FOR, WHILE, FN, RETURN, TYPE_BOOL, TYPE_FLOAT, TYPE_INT, VAR, //keywords
-		COLON, SEMI_COLON, COMMA, //punctuation
-		OPEN_BRACKET, CLOSED_BRACKET, OPEN_BRACE, CLOSED_BRACE, //brackets punctuation
-		COMMENT
-		};
-		
+		static string TokenString[];
 		// the Token parameters
 		TokenType type;
 		string lexeme = "";
 		float number;
+		int lineNumber;
 		
 		// constructor
-		Token (TokenType _type, string _lexeme, float _number){
-		type = _type;
-		lexeme = _lexeme;
-		number = _number;
-}
-
-// helper method to neatly print the current token
-void printToken();
+		Token (TokenType _type, string _lexeme, float _number, int _lineNumber){
+			type = _type;
+			lexeme = _lexeme;
+			number = _number;
+			lineNumber = _lineNumber;
+		}
+		
+		// helper method to neatly print the current token
+		void printToken();
 };
 \end{lstlisting}
 
@@ -119,8 +113,8 @@ The Lexer's \textit{Lex()} function does the following:
 	\item Until EOF:
 	\item \quad Read next character from the file
 	\item \quad See to which column in the table this character points to, and use the current state as the row value to go to the new state
-	\item \quad If at en error state
-	\item \quad \quad Check if the the lexeme is valid with the previous state before the error state. If it is invalid, report the error, otherwise reset the lexeme and the state and go to step 3
+	\item \quad If at an error state
+	\item \quad \quad Check if the the lexeme is valid with the previous state before the error state. If it is invalid, report the error, otherwise append the new token to the token vector, reset the lexeme and the state and go to step 3
 	\item \quad else set the state as the one obtained from step 5 as the next state and append the character to the lexeme. Go back to step 3
 \end{enumerate}
 
