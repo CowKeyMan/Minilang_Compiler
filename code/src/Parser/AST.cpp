@@ -367,7 +367,7 @@ ASTNodeReturnStatement::~ASTNodeReturnStatement(){
   delete expression;
 }
 
-// ReturnStatement Node
+// IfStatement Node
 bool ASTNodeIfStatement::parse(){
   match(IF);
   match(OPEN_BRACKET);
@@ -389,6 +389,8 @@ bool ASTNodeIfStatement::parse(){
     if (n3->parse() == false) return false;
     elseBlock = n3;
   }
+
+  return true;
 }
 ASTNodeIfStatement::~ASTNodeIfStatement(){
   delete expression;
@@ -396,44 +398,153 @@ ASTNodeIfStatement::~ASTNodeIfStatement(){
   delete elseBlock;
 }
 
+// ForStatement Node
+bool ASTNodeForStatement::parse(){
+  match(FOR);
+  match(OPEN_BRACKET);
 
+  if(tokenManager->peekToken()->type == VAR){
+    ASTNode *n = new ASTNodeVariableDecl(tokenManager);
+    if (n->parse() == false) return false;
+    variableDecl = n;
+  }
 
+  match(SEMI_COLON);
+
+  ASTNode *n2 = new ASTNodeExpression(tokenManager);
+  if (n2->parse() == false) return false;
+  expression = n2;
+
+  match(SEMI_COLON);
+
+  if(tokenManager->peekToken()->type == ID){
+    ASTNode *n3 = new ASTNodeAssignment(tokenManager);
+    if (n3->parse() == false) return false;
+    assignment = n3;
+  }
+
+  match(CLOSED_BRACKET);
+
+  ASTNode *n4 = new ASTNodeBlock(tokenManager);
+  if (n4->parse() == false) return false;
+  block = n4;
+
+  return true;
+}
+ASTNodeForStatement::~ASTNodeForStatement(){
+  delete variableDecl;
+  delete expression;
+  delete assignment;
+  delete block;
+}
+
+// FormalParam Node
+bool ASTNodeFormalParam::parse(){
+  if(tokenManager->peekToken()->type == VAR){
+    ASTNode *n = new ASTNodeIdentifier(tokenManager);
+    if (n->parse() == false) return false;
+    identifier = n;
+  }
+
+  match(COLON);
+
+  ASTNode *n2 = new ASTNodeType(tokenManager);
+  if (n2->parse() == false) return false;
+  type = n2;
+
+  return true;
+}
+ASTNodeFormalParam::~ASTNodeFormalParam(){
+  delete identifier;
+  delete type;
+}
+
+// FormalParams Node
+bool ASTNodeFormalParams::parse(){
+  ASTNode *n = new ASTNodeFormalParam(tokenManager);
+  if (n->parse() == false) return false;
+  formalParams.push_back(n); // at least one
+
+  while(tokenManager->peekToken()->type == COMMA){
+    match(COMMA);
+
+    ASTNode *n2 = new ASTNodeFormalParam(tokenManager);
+    if (n2->parse() == false) return false;
+    formalParams.push_back(n2);
+  }
+
+  return true;
+}
+ASTNodeFormalParams::~ASTNodeFormalParams(){
+  for(uint8_t i = 0; i < formalParams.size(); ++i){
+    delete formalParams.at(i);
+  }
+}
+
+// FunctionDecl Node
+bool ASTNodeFunctionDecl::parse(){
+  match(FN);
+  
+  ASTNode *n = new ASTNodeIdentifier(tokenManager);
+  if (n->parse() == false) return false;
+  identifier = n;
+  
+  match(OPEN_BRACKET);
+  
+  if(tokenManager->peekToken()->type == ID){
+    ASTNode *n2 = new ASTNodeFormalParams(tokenManager);
+    if (n2->parse() == false) return false;
+    formalParams = n2;
+  }
+  
+  match(CLOSED_BRACKET);
+  match(COLON);
+
+  ASTNode *n3 = new ASTNodeType(tokenManager);
+  if (n3->parse() == false) return false;
+  type = n3;
+
+  ASTNode *n4 = new ASTNodeBlock(tokenManager);
+  if (n4->parse() == false) return false;
+  block = n4;
+
+  return true;
+}
+ASTNodeFunctionDecl::~ASTNodeFunctionDecl(){
+  delete formalParams;
+}
 
 // Statement Node
 bool ASTNodeStatement::parse(){
+  ASTNode* n;
   switch(tokenManager->peekToken()->type){
     case VAR:
-      // statement = new ASTNodeVariableDecl(tokenManager);
+      n = new ASTNodeVariableDecl(tokenManager);
     break;
-
     case ID:
-      // statement = new ASTNodeAssignment(tokenManager);
+      n = new ASTNodeAssignment(tokenManager);
     break;
-
     case IF:
-      // statement = new ASTNodeIfStatement(tokenManager);
+      n = new ASTNodeIfStatement(tokenManager);
     break;
-
     case FOR:
-      // statement = new ASTNodeForStatement(tokenManager);
+      n = new ASTNodeForStatement(tokenManager);
     break;
-
     case RETURN:
-      // statement = new ASTNodeReturnStatement(tokenManager);
+      n = new ASTNodeReturnStatement(tokenManager);
     break;
-
     case FN:
-      // statement = new ASTNodeFunctionDecl(tokenManager);
+      n = new ASTNodeFunctionDecl(tokenManager);
     break;
-
     case OPEN_BRACE:
-      // statement = new ASTNodeBlock(tokenManager);
+      n = new ASTNodeBlock(tokenManager);
     break;
     default:
       return false;
   }
   
-  if(statement->parse()) return true;
+  if(statement->parse() == false) return false;
+  statement = n;
 
   return false;
 }
@@ -441,21 +552,35 @@ ASTNodeStatement::~ASTNodeStatement(void){
   delete statement;
 }
 
-// Program Node
-vector<TokenType> ASTNodeProgram::_startTokens = vector<TokenType>(); // empty
-bool ASTNodeProgram::parse(){
-  while(true){ // parse multiple statements
-    if (tokenManager->peekToken() == nullptr) break;
-    
+// Block Node
+bool ASTNodeBlock::parse(){
+  match(OPEN_BRACE);
+
+  while(tokenManager->peekToken() == nullptr){ // parse multiple statements
     ASTNode *statement = new ASTNodeStatement(tokenManager);
-    // statement must be parsable if a token exists
-    if (statement->parse() == false) printParseErrorAndExit(tokenManager->currentToken()); 
-    
+    if (statement->parse() == false) return false; 
     statements.push_back(statement);
   }
 
-  if (statements.size() > 0) return true; // needs to be at least one statement
-  return false;
+  match(CLOSED_BRACE);
+  
+  return true;
+}
+ASTNodeBlock::~ASTNodeBlock(){
+  for(uint8_t i = 0; i < statements.size(); ++i){
+    delete statements.at(i);
+  }
+}
+
+// Program Node
+bool ASTNodeProgram::parse(){
+  while(tokenManager->peekToken() == nullptr){
+    cerr<<"HELLO2\n"; // parse multiple statements
+    ASTNode *statement = new ASTNodeStatement(tokenManager);
+    if (statement->parse() == false) return false; 
+    statements.push_back(statement);
+  }
+  return true;
 }
 ASTNodeProgram::~ASTNodeProgram(){
   for(uint8_t i = 0; i < statements.size(); ++i){

@@ -41,9 +41,12 @@ int main(){
   file.reset();
   lexer.reset(); // freeing pointer optimistions
 
+  //DELETE COMMENTS
+
   // Parser
   parser = unique_ptr<Parser>( new Parser(&tokens) );
-  // parser->parse();
+  parser->parse();
+  std::cout << "HI10\n";
 
   parser.reset(); // freeing pointer optimistions
   tokens = vector<Token>(); // reset tokens vector to free up memory

@@ -202,7 +202,7 @@ class ASTNodeIfStatement : virtual public ASTNode{
   public:
     // costructor is same as parent
     ASTNodeIfStatement(shared_ptr<TokenManager> tokenManger) : ASTNode(tokenManager) {};
-    virtual ~ASTNodeIfStatement(){};
+    virtual ~ASTNodeIfStatement();
     virtual bool parse(); // returns true if parse was successful
   private:
     ASTNode* expression;
@@ -210,11 +210,52 @@ class ASTNodeIfStatement : virtual public ASTNode{
     ASTNode* elseBlock;
 };
 
+class ASTNodeForStatement : virtual public ASTNode{
+  public:
+    // costructor is same as parent
+    ASTNodeForStatement(shared_ptr<TokenManager> tokenManger) : ASTNode(tokenManager) {};
+    virtual ~ASTNodeForStatement();
+    virtual bool parse(); // returns true if parse was successful
+  private:
+    ASTNode* variableDecl;
+    ASTNode* expression;
+    ASTNode* assignment;
+    ASTNode* block;
+};
 
+class ASTNodeFormalParam : virtual public ASTNode{
+  public:
+    // costructor is same as parent
+    ASTNodeFormalParam(shared_ptr<TokenManager> tokenManger) : ASTNode(tokenManager) {};
+    virtual ~ASTNodeFormalParam();
+    virtual bool parse(); // returns true if parse was successful
+  private:
+    ASTNode* identifier;
+    ASTNode* type;
+};
 
+class ASTNodeFormalParams : virtual public ASTNode{
+  public:
+    // costructor is same as parent
+    ASTNodeFormalParams(shared_ptr<TokenManager> tokenManger) : ASTNode(tokenManager) {};
+    virtual ~ASTNodeFormalParams();
+    virtual bool parse(); // returns true if parse was successful
+  private:
+    vector<ASTNode*> formalParams;
+};
 
-
-
+class ASTNodeFunctionDecl : virtual public ASTNode{
+  public:
+    // costructor is same as parent
+    ASTNodeFunctionDecl(shared_ptr<TokenManager> tokenManger) : ASTNode(tokenManager) {};
+    virtual ~ASTNodeFunctionDecl();
+    virtual bool parse(); // returns true if parse was successful
+  private:
+    ASTNode* identifier;
+    ASTNode* formalParams;
+    ASTNode* type;
+    ASTNode* block;
+};
 
 class ASTNodeStatement : virtual public ASTNode{
   public:
@@ -226,6 +267,16 @@ class ASTNodeStatement : virtual public ASTNode{
     ASTNode* statement; // statement node
 };
 
+class ASTNodeBlock : virtual public ASTNode{
+  public:
+    // costructor is same as parent
+    ASTNodeBlock(shared_ptr<TokenManager> tokenManger) : ASTNode(tokenManager) {};
+    virtual ~ASTNodeBlock();
+    virtual bool parse(); // returns true if parse was successful
+  private:
+    vector<ASTNode*> statements; // statement nodes (multiple)
+};
+
 class ASTNodeProgram : virtual public ASTNode{
   public:
     // costructor is same as parent
@@ -234,7 +285,6 @@ class ASTNodeProgram : virtual public ASTNode{
     virtual bool parse(); // returns true if parse was successful
   private:
     vector<ASTNode*> statements; // statement nodes (multiple)
-    static vector<TokenType> _startTokens;
 };
 
 #endif // ASTNODE_H
