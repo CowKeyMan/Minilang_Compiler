@@ -44,7 +44,7 @@ keyword_token my_keywords[] = {
 };
 
 Token processAlpha(string lexeme, int lineNumber){
-  for(int i = 0; i < arraysize(my_keywords); ++i){
+  for(uint8_t i = 0; i < arraysize(my_keywords); ++i){
     if(lexeme == my_keywords[i].text){
       return Token(my_keywords[i].tok_type, lexeme, 0.0f, lineNumber);
     }
@@ -74,7 +74,7 @@ character_token normal_punctuation[] = {
 };
 
 Token processNormalPunctuation(string lexeme, int lineNumber){
-  for(int i = 0; i < arraysize(normal_punctuation); ++i){
+  for(uint8_t i = 0; i < arraysize(normal_punctuation); ++i){
     if(lexeme[0] == normal_punctuation[i].character){
       return Token(normal_punctuation[i].token, lexeme, 0.0f, lineNumber);
     }

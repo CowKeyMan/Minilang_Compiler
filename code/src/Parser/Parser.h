@@ -13,8 +13,8 @@ using std::shared_ptr;
 
 class Parser{
   private:
-    shared_ptr<TokenManager> tokenManager;
-    unique_ptr<ASTNode> tree;
+    TokenManager* tokenManager;
+    ASTNode* tree;
   public:
     Parser(vector<Token> *tokens);
     void parse();
