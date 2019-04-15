@@ -5,6 +5,11 @@ Parser::Parser(vector<Token> *tokens){
   tree = new ASTNodeProgram(tokenManager);
 };
 
-void Parser::parse(){
-  tree->parse();
+bool Parser::parse(){
+  return tree->parse();
+}
+
+Parser::~Parser(){
+  delete tree;
+  delete tokenManager;
 }

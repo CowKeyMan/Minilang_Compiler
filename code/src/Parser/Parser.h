@@ -17,7 +17,8 @@ class Parser{
     ASTNode* tree;
   public:
     Parser(vector<Token> *tokens);
-    void parse();
+    ~Parser();
+    bool parse();
 };
 
 #endif // PARSER_H

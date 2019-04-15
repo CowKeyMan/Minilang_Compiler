@@ -574,10 +574,10 @@ ASTNodeBlock::~ASTNodeBlock(){
 
 // Program Node
 bool ASTNodeProgram::parse(){
-  while(tokenManager->peekToken() == nullptr){
-    cerr<<"HELLO2\n"; // parse multiple statements
+  while(tokenManager->peekToken() != nullptr){
     ASTNode *statement = new ASTNodeStatement(tokenManager);
     if (statement->parse() == false) return false; 
+    cerr<<"HELLO3\n"; // parse multiple statements
     statements.push_back(statement);
   }
   return true;

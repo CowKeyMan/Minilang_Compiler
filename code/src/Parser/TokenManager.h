@@ -5,7 +5,7 @@ using std::vector;
 
 class TokenManager{
   private:
-    unsigned int tokenIndex = 0; // The index, for the token queue
+    int tokenIndex = -1; // The index, for the token queue
     vector<Token> *tokens; // Token queue
   public:
     TokenManager(vector<Token> *_tokens){ tokens = _tokens; };

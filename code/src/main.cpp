@@ -8,7 +8,7 @@
 #include "Parser/Parser.h"
 
 #define TEST_LEXER
-#define FILENAME "InputFiles/LexerTestInput.txt"
+#define FILENAME "InputFiles/Input.txt"
 
 using std::cout;
 using std::cerr;
@@ -35,9 +35,9 @@ int main(){
   lexer = unique_ptr<Lexer>( new Lexer(*file) );
   lexer->lex();
   tokens = lexer->get_tokens();
-#ifdef TEST_LEXER
+// #ifdef TEST_LEXER
   lexer->printTokens(); // for debugging purposes
-#endif
+// #endif
   file.reset();
   lexer.reset(); // freeing pointer optimistions
 
@@ -45,8 +45,7 @@ int main(){
 
   // Parser
   parser = unique_ptr<Parser>( new Parser(&tokens) );
-  parser->parse();
-  std::cout << "HI10\n";
+  cout << (parser->parse()? 1 : 0) << "\n";
 
   parser.reset(); // freeing pointer optimistions
   tokens = vector<Token>(); // reset tokens vector to free up memory
