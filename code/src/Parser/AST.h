@@ -162,7 +162,6 @@ class ASTNodeSimpleExpression: virtual public ASTNode{
     virtual bool parse(); // returns true if parse was successful
     virtual void accept(Visitor *v);
 
-    ASTNode *term;
     vector<ASTNode*> additiveOP;
     vector<ASTNode*> terms;
 };

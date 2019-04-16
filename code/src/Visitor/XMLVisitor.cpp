@@ -23,13 +23,13 @@ void XMLVisitor::visit(ASTNodeType *n){
 void XMLVisitor::visit(ASTNodeLiteral *n){
   switch(n->token->type){
     case FLOAT:
-      xml << "<FloatConst>" << n->token->number << "</FloatConst>\n";
+      xml << "<FloatConst>" << n->token->number << "</FloatConst>";
     break;
     case INT:
-      xml << "<IntConst>" << n->token->number << "</IntConst>\n";
+      xml << "<IntConst>" << n->token->number << "</IntConst>";
     break;
     case BOOL:
-      xml << "<BoolConst>" << n->token->lexeme << "</BoolConst>\n";
+      xml << "<BoolConst>" << n->token->lexeme << "</BoolConst>";
     break;
     default:
     break;
@@ -63,16 +63,38 @@ void XMLVisitor::visit(ASTNodeTerm *n){
     numberOfTabs++;
     xml << tabsString();
     n->factors.at(factorsIndex++)->accept(this);
+    xml << "\n";
   }
   xml << tabsString();
   n->factors.at(factorsIndex++)->accept(this);
+  xml << "\n";
   for(unsigned int multOpIndex = 0; multOpIndex < n->multiplicativeOP.size(); ++multOpIndex){
     numberOfTabs--;
     xml << tabsString() << "</BinExprNode>\n";
   }
 }
-void XMLVisitor::visit(ASTNodeSimpleExpression *n){}
-void XMLVisitor::visit(ASTNodeExpression *n){}
+void XMLVisitor::visit(ASTNodeSimpleExpression *n){
+  unsigned int termsIndex = 0;
+  for(unsigned int multOpIndex = 0; multOpIndex < n->additiveOP.size(); ++multOpIndex){
+    xml << tabsString() << "BinExprNode ";
+    n->additiveOP.at(multOpIndex)->accept(this);
+    xml << ">\n";
+    numberOfTabs++;
+    xml << tabsString();
+    n->terms.at(termsIndex++)->accept(this);
+    // xml << "\n";
+  }
+  xml << tabsString();
+  n->terms.at(termsIndex++)->accept(this);
+  xml << "\n";
+  for(unsigned int multOpIndex = 0; multOpIndex < n->additiveOP.size(); ++multOpIndex){
+    numberOfTabs--;
+    xml << tabsString() << "</BinExprNode>\n";
+  }
+}
+void XMLVisitor::visit(ASTNodeExpression *n){
+  
+}
 void XMLVisitor::visit(ASTNodeAssignment *n){}
 void XMLVisitor::visit(ASTNodeVariableDecl *n){}
 void XMLVisitor::visit(ASTNodeReturnStatement *n){}
@@ -88,7 +110,9 @@ void XMLVisitor::visit(ASTNodeFormalParam *n){
   xml << "</Param>";
 }
 void XMLVisitor::visit(ASTNodeFormalParams *n){
-  
+  for(int i = 0; i < n->formalParams.size(); ++i){
+    n->formalParams.at(i)->accept(this);
+  }
 }
 void XMLVisitor::visit(ASTNodeFunctionDecl *n){}
 void XMLVisitor::visit(ASTNodeStatement *n){}

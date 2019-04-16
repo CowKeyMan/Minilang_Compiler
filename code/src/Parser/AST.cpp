@@ -240,7 +240,7 @@ ASTNodeTerm::~ASTNodeTerm(){
 bool ASTNodeSimpleExpression::parse(){
   ASTNode *n = new ASTNodeTerm(tokenManager);
   if (n->parse() == false) return false;
-  term = n;
+  terms.push_back(n); // at least one
 
   while(true){
     ASTNode *n2, *n3;
@@ -262,10 +262,11 @@ bool ASTNodeSimpleExpression::parse(){
   }
 }
 ASTNodeSimpleExpression::~ASTNodeSimpleExpression(){
-  delete term;
   for(uint8_t i = 0; i < terms.size(); ++i){
-    delete additiveOP.at(i);
     delete terms.at(i);
+  }
+  for(uint8_t i = 0; i < additiveOP.size(); ++i){
+    delete additiveOP.at(i);
   }
 }
 
