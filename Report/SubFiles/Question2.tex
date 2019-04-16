@@ -1,0 +1,81 @@
+\section{Task 2 - Parser}
+\subsection{Explanation and Implementation}
+
+The parser takes the tokens and puts them into a parse tree based on the grammar. The following is the grammar re-written to make terminals and non terminals more visible. Terminals are underlined while non-terminals are enclosed in brackets. Square brackets represent optional parts while curly braces represent parts which may be repeated. The peeking method is used whenever there is the use of options(sub-bullet points, which represent $|$), [] or \{\}. Note: An identifier non-terminal was created due to 'Factor', since it accepts a node, so ID was enclosed within a non-terminal.
+
+\begin{itemize}
+	\item Type
+		\subitem \ul{TYPE\un FLOAT}
+		\subitem \ul{TYPE\un INT}
+		\subitem \ul{TYPE\un BOOL}
+	\item Literal
+		\subitem \ul{FLOAT}
+		\subitem \ul{INT}
+		\subitem \ul{BOOL}
+	\item Identifier
+		\subitem \ul{ID}
+	\item MultiplicativeOp
+		\subitem \ul{TIMES}
+		\subitem \ul{DIVISION}
+		\subitem \ul{AND}
+	\item AdditiveOp
+		\subitem \ul{PLUS}
+		\subitem \ul{MINUS}
+		\subitem \ul{OR}
+	\item ReltionalOp
+		\subitem \ul{ST}
+		\subitem \ul{GT}
+		\subitem \ul{EQQ}
+		\subitem \ul{NE}
+		\subitem \ul{SE}
+		\subitem \ul{GE}
+	\item ActualParams
+		\subitem (Expression) \{ \ul{COMMA} (Expression) \}
+	\item FunctionCall
+		\subitem (Identifier) \ul{OPEN\un BRACKET} [(ActualParams)] \ul{CLOSED\un BRACKET}
+	\item SubExpression 
+		\subitem \ul{OPEN\un BRACKET} (Expression) \ul{CLOSED\un BRACKET}
+	\item Unary
+		\subitem \ul{MINUS} (Expression)
+		\subitem \ul{NOT} (Expression)
+	\item Factor
+		\subitem (Literal)
+		\subitem (Identifier)
+		\subitem (FunctionCall)
+		\subitem (SubExpression)
+		\subitem (Unary)
+	\item Term
+		\subitem (Factor) \{ (MultiplicativeOp) (Factor) \}
+	\item SimpleExpression
+		\subitem (Term) \{ (AdditiveOp) (Term) \}
+	\item Expression
+		\subitem (SimpleExpression) \{ (RelationalOp) (SimpleExpression) \}
+	\item Assignment
+		\subitem (Identifier) \ul{EQUALS} (Expression)
+	\item VariableDecl
+		\subitem \ul{VAR} (Identifier) \ul{COLON} (Type)	\ul{EQ} (Expression)
+	\item ReturnStatement
+		\subitem \ul{RETURN} (Expression)
+	\item IfStatement
+		\subitem \ul{IF} \ul{OPEN\un BRACKET} (Expression) \ul{CLOSED\un BRACKET} (Block) [ \ul{ELSE} (Block) ]
+	\item ForStatement
+		\subitem \ul{FOR} \ul{OPEN\un BRACKET} [ (VariableDecl) ] \ul{SEMI\un COLON} (Expression) \ul{SEMI\un COLON} [ (Assignment) ] \ul{CLOSED\un BRACKET} (Block)
+	\item FormalParam
+		\subitem (Identifier) \ul{COLON} (Type)
+	\item FormalParams
+		\subitem \ul{FormalParam} \{ \ul{COMMA} (FormalParam) \}
+	\item FunctionDecl
+		\subitem \ul{FN} (Identifier) \ul{OPEN\un BRACKET} [ (FormalParams) ] \ul{CLOSED\un BRACKET} \ul{COLON} (Type) (Block)
+	\item Statement
+		\subitem (VariableDecl)
+		\subitem (Assignment)
+		\subitem (IfStatement)
+		\subitem (ForStatement)
+		\subitem (ReturnStatement)
+		\subitem (FunctionDecl)
+		\subitem (Block)
+	\item Block
+		\subitem \ul{OPEN\un BRACE} \{ Statement \} \ul{CLOSED\un BRACE}
+	\item Program
+		\subitem \{ (Statement) \}
+\end{itemize}

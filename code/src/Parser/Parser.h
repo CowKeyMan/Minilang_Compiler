@@ -19,6 +19,7 @@ class Parser{
     Parser(vector<Token> *tokens);
     ~Parser();
     bool parse();
+    ASTNode *getTree() { return tree; }
 };
 
 #endif // PARSER_H

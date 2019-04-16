@@ -45,10 +45,20 @@ int main(){
 
   // Parser
   parser = unique_ptr<Parser>( new Parser(&tokens) );
-  cout << (parser->parse()? 1 : 0) << "\n";
+
+  bool successParse = parser->parse();
+  cout << (successParse? 1 : 0) << "\n";
+  if(successParse){
+    XMLVisitor *x = new XMLVisitor();
+    ASTNode* tree = parser->getTree();
+    tree->accept(x);
+    cout << x->getXML();
+  }
 
   parser.reset(); // freeing pointer optimistions
   tokens = vector<Token>(); // reset tokens vector to free up memory
+
+
 }
 
 void readFile(string &s){

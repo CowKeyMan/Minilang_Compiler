@@ -12,7 +12,7 @@ void printParseErrorAndExit(Token *token){
 Token *ASTNode::match(TokenType tt){
   Token *token = tokenManager->nextToken();
   if(token->type != tt){
-    cerr << "error, could not match " << Token::TokenString[tt] << "at line " << token->lineNumber;
+    cerr << "error, could not match " << Token::TokenString[tt] << "at line " << token->lineNumber << "\n";
 	  exit(EXIT_FAILURE);
   }else{
     return token;
@@ -104,7 +104,6 @@ bool ASTNodeActualParams::parse(){
   if (expr->parse() == false) return false; // expression must be valid
   expressions.push_back(expr);
   while(tokenManager->peekToken()->type == COMMA){
-    tokenManager->currentToken();
     ASTNode* expr = new ASTNodeExpression(tokenManager);
     if (expr->parse() == false) return false; // expression must be valid
     expressions.push_back(expr);
@@ -148,8 +147,7 @@ ASTNodeSubExpression::~ASTNodeSubExpression(){
 
 // Unary Node
 bool ASTNodeUnary::parse(){
-  switch (tokenManager->peekToken()->type)
-  {
+  switch (tokenManager->peekToken()->type){
     case MINUS:
       match(MINUS);
     break;
@@ -160,7 +158,7 @@ bool ASTNodeUnary::parse(){
       return false;
   }
 
-  ASTNode *expr= new ASTNodeActualParams(tokenManager);
+  ASTNode *expr= new ASTNodeExpression(tokenManager);
   if (expr->parse() == false) return false;
   expression = expr;
 
@@ -181,7 +179,7 @@ bool ASTNodeFactor::parse(){
       n = new ASTNodeLiteral(tokenManager);  
     break;
     case ID:
-      if(tokenManager->peekToken(2)->type == OPEN_BRACKET){
+      if(tokenManager->peekToken(1)->type == OPEN_BRACKET){
         n = new ASTNodeFunctionCall(tokenManager);
       }else{
         n = new ASTNodeIdentifier(tokenManager);
@@ -586,4 +584,83 @@ ASTNodeProgram::~ASTNodeProgram(){
   for(uint8_t i = 0; i < statements.size(); ++i){
     delete statements.at(i);
   }
+}
+
+void ASTNode::accept(Visitor *v){
+  v->visit(this);
+}
+void ASTNodeType::accept(Visitor *v){
+  v->visit(this);
+}
+void ASTNodeLiteral::accept(Visitor *v){
+  v->visit(this);
+}
+void ASTNodeIdentifier::accept(Visitor *v){
+  v->visit(this);
+}
+void ASTNodeMultiplicativeOp::accept(Visitor *v){
+  v->visit(this);
+}
+void ASTNodeAdditiveOp::accept(Visitor *v){
+  v->visit(this);
+}
+void ASTNodeRelationalOp::accept(Visitor *v){
+  v->visit(this);
+}
+void ASTNodeActualParams::accept(Visitor *v){
+  v->visit(this);
+}
+void ASTNodeFunctionCall::accept(Visitor *v){
+  v->visit(this);
+}
+void ASTNodeSubExpression::accept(Visitor *v){
+  v->visit(this);
+}
+void ASTNodeUnary::accept(Visitor *v){
+  v->visit(this);
+}
+void ASTNodeFactor::accept(Visitor *v){
+  v->visit(this);
+}
+void ASTNodeTerm::accept(Visitor *v){
+  v->visit(this);
+}
+void ASTNodeSimpleExpression::accept(Visitor *v){
+  v->visit(this);
+}
+void ASTNodeExpression::accept(Visitor *v){
+  v->visit(this);
+}
+void ASTNodeAssignment::accept(Visitor *v){
+  v->visit(this);
+}
+void ASTNodeVariableDecl::accept(Visitor *v){
+  v->visit(this);
+}
+void ASTNodeReturnStatement::accept(Visitor *v){
+  v->visit(this);
+}
+void ASTNodeIfStatement::accept(Visitor *v){
+  v->visit(this);
+}
+void ASTNodeForStatement::accept(Visitor *v){
+  v->visit(this);
+}
+void ASTNodeFormalParam::accept(Visitor *v){
+  v->visit(this);
+}
+void ASTNodeFormalParams::accept(Visitor *v){
+  v->visit(this);
+}
+void ASTNodeFunctionDecl::accept(Visitor *v){
+  v->visit(this);
+}
+void ASTNodeStatement::accept(Visitor *v){
+  v->visit(this);
+}
+void ASTNodeBlock::accept(Visitor *v){
+  v->visit(this);
+}
+void ASTNodeProgram::accept(Visitor *v){
+  v->visit(this);
 }
