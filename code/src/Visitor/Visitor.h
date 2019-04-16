@@ -103,7 +103,7 @@ class XMLVisitor : virtual public Visitor{
     string tabsString(){
       string ret;
       for(unsigned int i = 0; i < numberOfTabs; ++i){
-        ret.append("\t");
+        ret.append("  "); // tab is 2 whitespaces
       }
       return ret;
     }

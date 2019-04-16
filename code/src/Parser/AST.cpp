@@ -5,7 +5,7 @@
 using std::cerr;
 
 void printParseErrorAndExit(Token *token){
-  cerr << "error, could not parse token " << token->lexeme << "at line " << token->lineNumber;
+  cerr << "error, could not parse token " << token->lexeme << " at line " << token->lineNumber;
   exit(EXIT_FAILURE);
 }
 
@@ -207,7 +207,7 @@ ASTNodeFactor::~ASTNodeFactor(){
 bool ASTNodeTerm::parse(){
   ASTNode *n = new ASTNodeFactor(tokenManager);
   if (n->parse() == false) return false;
-  factor = n;
+  factors.push_back(n); // at least one
 
   while(true){
     ASTNode *n2, *n3;
@@ -215,7 +215,7 @@ bool ASTNodeTerm::parse(){
       case TIMES:
       case DIVISION:
       case AND:
-        n2 = new ASTNodeFactor(tokenManager);
+        n2 = new ASTNodeMultiplicativeOp(tokenManager);
         if (n2->parse() == false) return false;
         multiplicativeOP.push_back(n2);
 
@@ -229,10 +229,11 @@ bool ASTNodeTerm::parse(){
   }
 }
 ASTNodeTerm::~ASTNodeTerm(){
-  delete factor;
   for(uint8_t i = 0; i < factors.size(); ++i){
-    delete multiplicativeOP.at(i);
     delete factors.at(i);
+  }
+  for(uint8_t i = 0; i < multiplicativeOP.size(); ++i){
+    delete multiplicativeOP.at(i);
   }
 }
 
@@ -438,11 +439,9 @@ ASTNodeForStatement::~ASTNodeForStatement(){
 
 // FormalParam Node
 bool ASTNodeFormalParam::parse(){
-  if(tokenManager->peekToken()->type == VAR){
-    ASTNode *n = new ASTNodeIdentifier(tokenManager);
-    if (n->parse() == false) return false;
-    identifier = n;
-  }
+  ASTNode *n = new ASTNodeIdentifier(tokenManager);
+  if (n->parse() == false) return false;
+  identifier = n;
 
   match(COLON);
 

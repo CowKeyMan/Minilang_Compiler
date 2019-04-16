@@ -150,9 +150,8 @@ class ASTNodeTerm: virtual public ASTNode{
     virtual bool parse(); // returns true if parse was successful
     virtual void accept(Visitor *v);
 
-    ASTNode *factor;
-    vector<ASTNode*> multiplicativeOP;
     vector<ASTNode*> factors;
+    vector<ASTNode*> multiplicativeOP;
 };
 
 class ASTNodeSimpleExpression: virtual public ASTNode{
