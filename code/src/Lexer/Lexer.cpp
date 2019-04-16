@@ -180,3 +180,11 @@ void Lexer::printTokens(){
     tokens[i].printToken();
   }
 }
+
+void Lexer::removeComments(){
+  for(unsigned int i = 0 ; i < tokens.size(); ++i){
+    if(tokens.at(i).type == COMMENT){
+      tokens.erase(tokens.begin() + i);
+    }
+  }
+}

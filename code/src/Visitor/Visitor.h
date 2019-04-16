@@ -96,18 +96,12 @@ class XMLVisitor : virtual public Visitor{
     virtual void visit(ASTNodeStatement *n);
     virtual void visit(ASTNodeBlock *n);
     virtual void visit(ASTNodeProgram *n);
+    void trimXMLNewLines(); // remove empty lines from xml
     string getXML(){ return xml.str(); }
   private:
     stringstream xml;
     unsigned int numberOfTabs = 0;
-    string tabsString(){
-      if(xml.str().back() == ' ') return "";
-      string ret;
-      for(unsigned int i = 0; i < numberOfTabs; ++i){
-        ret.append("  "); // tab is 2 whitespaces
-      }
-      return ret;
-    }
+    string tabsString();
 };
 
 #endif // VISITOR_H

@@ -102,7 +102,8 @@ bool ASTNodeRelationalOp::parse(){
 bool ASTNodeActualParams::parse(){
   ASTNode *expr = new ASTNodeExpression(tokenManager);
   if (expr->parse() == false) return false; // expression must be valid
-  expressions.push_back(expr);
+  expressions.push_back(expr); // At least one
+
   while(tokenManager->peekToken()->type == COMMA){
     ASTNode* expr = new ASTNodeExpression(tokenManager);
     if (expr->parse() == false) return false; // expression must be valid
@@ -274,7 +275,7 @@ ASTNodeSimpleExpression::~ASTNodeSimpleExpression(){
 bool ASTNodeExpression::parse(){
   ASTNode *n = new ASTNodeSimpleExpression(tokenManager);
   if (n->parse() == false) return false;
-  simpleExpression = n;
+  simpleExpressions.push_back(n); // at least one
 
   while(true){
     ASTNode *n2, *n3;
@@ -299,10 +300,11 @@ bool ASTNodeExpression::parse(){
   }
 }
 ASTNodeExpression::~ASTNodeExpression(){
-  delete simpleExpression;
   for(uint8_t i = 0; i < simpleExpressions.size(); ++i){
-    delete relationalOp.at(i);
     delete simpleExpressions.at(i);
+  }
+  for(uint8_t i = 0; i < relationalOp.size(); ++i){
+    delete relationalOp.at(i);
   }
 }
 

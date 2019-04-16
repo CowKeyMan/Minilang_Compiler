@@ -2,6 +2,36 @@
 
 #include <iostream>
 
+string XMLVisitor::tabsString(){
+  if(xml.str().back() == ' ') return "";
+  string ret;
+  for(unsigned int i = 0; i < numberOfTabs; ++i){
+    ret.append("  "); // tab is 2 whitespaces
+  }
+  return ret;
+}
+
+void XMLVisitor::trimXMLNewLines(){
+  string s = xml.str();
+
+  unsigned int newLineCount = 0;
+  for(int i = 0; i < s.length(); ++i){
+    if(s.at(i) == '\n'){
+      newLineCount++;
+      if(newLineCount == 2){
+        s.erase(i, 1);
+        i--;
+        newLineCount = 1;
+      }
+    }else if(s.at(i) != ' '){
+      newLineCount = 0;
+    }
+  }
+
+  xml.str("");
+  xml << s;
+}
+
 void XMLVisitor::visit(ASTNodeType *n){
   xml << "Type = \"";
   switch(n->token->type){
@@ -47,7 +77,9 @@ void XMLVisitor::visit(ASTNodeAdditiveOp *n){
 void XMLVisitor::visit(ASTNodeRelationalOp *n){
   xml << "OP=\"" << n->token->lexeme << "\"";
 }
-void XMLVisitor::visit(ASTNodeActualParams *n){}
+void XMLVisitor::visit(ASTNodeActualParams *n){
+
+}
 void XMLVisitor::visit(ASTNodeFunctionCall *n){}
 void XMLVisitor::visit(ASTNodeSubExpression *n){}
 void XMLVisitor::visit(ASTNodeUnary *n){}
@@ -82,7 +114,7 @@ void XMLVisitor::visit(ASTNodeSimpleExpression *n){
     numberOfTabs++;
     xml << tabsString();
     n->terms.at(termsIndex++)->accept(this);
-    // xml << "\n";
+    xml << "\n";
   }
   xml << tabsString();
   n->terms.at(termsIndex++)->accept(this);
@@ -93,7 +125,23 @@ void XMLVisitor::visit(ASTNodeSimpleExpression *n){
   }
 }
 void XMLVisitor::visit(ASTNodeExpression *n){
-  
+  unsigned int factorsIndex = 0;
+  for(unsigned int multOpIndex = 0; multOpIndex < n->relationalOp.size(); ++multOpIndex){
+    xml << tabsString() << "BinExprNode ";
+    n->relationalOp.at(multOpIndex)->accept(this);
+    xml << ">\n";
+    numberOfTabs++;
+    xml << tabsString();
+    n->simpleExpressions.at(factorsIndex++)->accept(this);
+    xml << "\n";
+  }
+  xml << tabsString();
+  n->simpleExpressions.at(factorsIndex++)->accept(this);
+  xml << "\n";
+  for(unsigned int multOpIndex = 0; multOpIndex < n->relationalOp.size(); ++multOpIndex){
+    numberOfTabs--;
+    xml << tabsString() << "</BinExprNode>\n";
+  }
 }
 void XMLVisitor::visit(ASTNodeAssignment *n){}
 void XMLVisitor::visit(ASTNodeVariableDecl *n){}
@@ -101,13 +149,13 @@ void XMLVisitor::visit(ASTNodeReturnStatement *n){}
 void XMLVisitor::visit(ASTNodeIfStatement *n){}
 void XMLVisitor::visit(ASTNodeForStatement *n){}
 void XMLVisitor::visit(ASTNodeFormalParam *n){
-  xml << "<Param>";
+  xml << "<F_Param>";
 
   n->identifier->accept(this);
   xml << ":";
   n->type->accept(this);
 
-  xml << "</Param>";
+  xml << "</F_Param>";
 }
 void XMLVisitor::visit(ASTNodeFormalParams *n){
   for(int i = 0; i < n->formalParams.size(); ++i){

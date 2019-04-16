@@ -34,10 +34,11 @@ int main(){
   
   lexer = unique_ptr<Lexer>( new Lexer(*file) );
   lexer->lex();
+  lexer->removeComments();
   tokens = lexer->get_tokens();
-// #ifdef TEST_LEXER
+#ifdef TEST_LEXER
   lexer->printTokens(); // for debugging purposes
-// #endif
+#endif
   file.reset();
   lexer.reset(); // freeing pointer optimistions
 
@@ -52,6 +53,7 @@ int main(){
     XMLVisitor *x = new XMLVisitor();
     ASTNode* tree = parser->getTree();
     tree->accept(x);
+    x->trimXMLNewLines();
     cout << x->getXML();
   }
 

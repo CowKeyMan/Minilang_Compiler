@@ -49,4 +49,5 @@ class Lexer{
     void printTokens(); // Helper function to neatly print all the tokens
 
     void lex(); // main method to get tokens from file
+    void removeComments(); // removes al comments from the tokens
 };
