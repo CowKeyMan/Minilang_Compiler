@@ -123,7 +123,6 @@ bool ASTNodeFunctionCall::parse(){
     actualParams = actualP;
   }
 
-  std::cout << "HELLO\n";
   match(CLOSED_BRACKET);
   return true;
 }

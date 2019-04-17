@@ -1,7 +1,7 @@
 \section{Task 2 - Parser}
 \subsection{Explanation and Implementation}
 
-The parser takes the tokens and puts them into a parse tree based on the grammar. The following is the grammar re-written to make terminals and non terminals more visible. Terminals are underlined while non-terminals are enclosed in brackets. Square brackets represent optional parts while curly braces represent parts which may be repeated. The peeking method is used whenever there is the use of options(sub-bullet points, which represent $|$), [] or \{\}. Note: An identifier non-terminal was created due to 'Factor', since it accepts a node, so ID was enclosed within a non-terminal.
+The parser takes the tokens and puts them into a parse tree based on the grammar. The following is the grammar re-written to make terminals and non terminals more visible. Terminals are underlined while non-terminals are enclosed in brackets. Square brackets represent optional parts while curly braces represent parts which may be repeated. The peeking method is used whenever there is the use of options(sub-bullet points, which represent $|$), [] or \{\}, this is done in order to \textbf{avoid back-tracking}. The parser uses something close to the FIRST set in order to peek as much as it needs to, so as to determine the next production to choose. Note: An identifier non-terminal was created due to 'Factor', since it accepts a node, so ID was enclosed within a non-terminal.
 
 \begin{itemize}
 	\item Type
@@ -79,3 +79,89 @@ The parser takes the tokens and puts them into a parse tree based on the grammar
 	\item Program
 		\subitem \{ (Statement) \}
 \end{itemize}
+
+Since it is an Abstract Syntax tree, the following tokens are matched and immediately discarded by the parser: OPEN\un BRACKET, CLOSED\un BRACKET, OPEN\un BRACE, CLOSED \un BRACE, SEMI\un COLON, COLON, COMMA, FN, VAR, RETURN, IF, ELSE, FOR
+
+From the above, it is shown that there are 25 possible types of nodes. This is because the tree is not fully abstract. The advantage of this is that operator precedence for expressions is handled automatically by the grammar, while the disadvantage is that it leads to more complexity, since each type of node needs to be catered for.
+
+Regarding implementation, the \textit{Parser} class receives the tokens and stores them in a \textit{TokenManager} so that they are managed by the functions in this manager. The \textit{Parser} class also holds the root node of the recursive AST which will be generated when the \textit{parse()} method is called.
+
+The 25 ASTNodes classes (26 counting the abstract class used for polymorphism) each have a parse method to parse their own form accordingly, and store what is parsed in their own way. For example, the \textit{Type} ASTNode, will store a token whose type is TYPE\un FLOAT, TYPE\un INT or TYPE\un BOOL. Meanwhile, a program will contain a list (vector) of statements.
+
+Each parse method for the ASTNodes will return true or false, to tell the callback recursion whether it was successful or not. Since a predictive parser with follow sets is used, then all should return true, and if one is false, then parsing fails and the error at that line is reported to the user. The function \textit{match(TokenType)} is used to check if  token is matched. It is used especially in cases where a bracket needs to be matched. If the required token type is not found, then the error that the required token was not found is reported to the user and the parser exits.
+\\ \\
+Taking the following parse method for ASTNodeIdentifier:
+\begin{lstlisting}[language=C++]
+class ASTNodeIdentifier : virtual public ASTNode{
+	public:
+		// costructor is same as parent
+		ASTNodeIdentifier(TokenManager *tokenManager) : ASTNode(tokenManager) {};
+		virtual ~ASTNodeIdentifier(){};
+		virtual bool parse(); // returns true if parse was successful
+		virtual void accept(Visitor *v);
+		
+		Token* token;
+};
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++]
+bool ASTNodeIdentifier::parse(){
+	token = match(ID);
+	return true;
+}
+\end{lstlisting}
+The process is that the token is simply stored within the variable \textit{token}, and it becomes a leaf of the tree (all leaves of the tree are tokens, while the internal nodes are ASTNodes).
+\\\\
+Taking a more complex example of the ASTNodeIfStatement:
+\begin{lstlisting}[language=C++]
+class ASTNodeIfStatement : virtual public ASTNode{
+	public:
+		// costructor is same as parent
+		ASTNodeIfStatement(TokenManager *tokenManager) : ASTNode(tokenManager) {};
+		virtual ~ASTNodeIfStatement();
+		virtual bool parse(); // returns true if parse was successful
+		virtual void accept(Visitor *v);
+		
+		ASTNode* expression;
+		ASTNode* block;
+		ASTNode* elseBlock = NULL; // optional
+};
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++]
+bool ASTNodeIfStatement::parse(){
+	match(IF);
+	match(OPEN_BRACKET);
+	
+	ASTNode *n = new ASTNodeExpression(tokenManager);
+	if (n->parse() == false) return false;
+	expression = n;
+	
+	match(CLOSED_BRACKET);
+	
+	ASTNode *n2 = new ASTNodeBlock(tokenManager);
+	if (n2->parse() == false) return false;
+	block = n2;
+	
+	if(tokenManager->peekToken()->type == ELSE){
+		match(ELSE);
+		
+		ASTNode *n3 = new ASTNodeBlock(tokenManager);
+		if (n3->parse() == false) return false;
+		elseBlock = n3;
+	}
+	
+	return true;
+}
+ASTNodeIfStatement::~ASTNodeIfStatement(){
+	delete expression;
+	delete block;
+	delete elseBlock;
+}
+\end{lstlisting}
+
+The first thing to notice is that an IF statement has three children and none of them are leaves. The parse method starts by first matching an IF and OPEN\un BRACKET and discards them (lines 2 and 3), afterwards it tries to parse an ASTNodeExpression(lines 5 and 6). If it fails, the entire process returns false (line 6). Otherwise, if it is successful, the expression node within the if node is set to the newly parsed expression node. This shows how the parse method is a recursive function, until leaves are found. The rest of the method follows suit. Note how the else block is optional, so first the parser checks if it should expect an else block by checking for an ELSE token (line 15), and if it does not exists, it is skipped over, otherwise it is set accordingly.
+
+
+\subsection{Example Test}
+The parse method returns true or false, and it is difficult to visualise the tree, so instead a visualization of this process can be shown in the next section XMLGeneration, for a proper visualization of the tree.
