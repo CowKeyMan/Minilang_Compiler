@@ -14,17 +14,20 @@ string XMLVisitor::tabsString(){
 void XMLVisitor::trimXMLNewLines(){
   string s = xml.str();
 
-  unsigned int newLineCount = 0;
+  unsigned int newLineCount = 0, numberToDelete = 1;
   for(int i = 0; i < s.length(); ++i){
     if(s.at(i) == '\n'){
       newLineCount++;
       if(newLineCount == 2){
-        s.erase(i, 1);
+        s.erase(i-numberToDelete, numberToDelete);
         i--;
         newLineCount = 1;
       }
     }else if(s.at(i) != ' '){
       newLineCount = 0;
+      numberToDelete = 1;
+    }else if(s.at(i) == ' '){
+      numberToDelete++;
     }
   }
 
@@ -78,18 +81,46 @@ void XMLVisitor::visit(ASTNodeRelationalOp *n){
   xml << "OP=\"" << n->token->lexeme << "\"";
 }
 void XMLVisitor::visit(ASTNodeActualParams *n){
-
+  for(int i = 0; i < n->expressions.size(); ++i){
+    xml << "\n" << tabsString() << "<A_Param>\n";
+    numberOfTabs++;
+    n->expressions.at(i)->accept(this);
+    numberOfTabs--;
+    xml << "\n" << tabsString() << "</A_Param>\n";
+  }
 }
-void XMLVisitor::visit(ASTNodeFunctionCall *n){}
-void XMLVisitor::visit(ASTNodeSubExpression *n){}
-void XMLVisitor::visit(ASTNodeUnary *n){}
+void XMLVisitor::visit(ASTNodeFunctionCall *n){
+  xml << "<FN_CALL FN=\"";
+  n->identifier->accept(this);
+  xml << "\"\n";
+  numberOfTabs++;
+  n->actualParams->accept(this);
+  numberOfTabs--;
+  xml << "\n</FN_CALL FN>";
+}
+void XMLVisitor::visit(ASTNodeSubExpression *n){
+  n->expression->accept(this);
+}
+void XMLVisitor::visit(ASTNodeUnary *n){
+  xml << "\n" << tabsString() << "UnaryExpr OP=\"";
+  xml << ((n->token->type == MINUS)? "-" : "not");
+  xml << "\"";
+  
+  xml << ">\n";
+  numberOfTabs++;
+  xml << tabsString();
+  n->expression->accept(this);
+  xml << "\n";
+  numberOfTabs--;
+  xml << tabsString() << "</UnaryExpr>\n";
+}
 void XMLVisitor::visit(ASTNodeFactor *n){
   n->node->accept(this);
 }
 void XMLVisitor::visit(ASTNodeTerm *n){
   unsigned int factorsIndex = 0;
   for(unsigned int multOpIndex = 0; multOpIndex < n->multiplicativeOP.size(); ++multOpIndex){
-    xml << tabsString() << "BinExprNode ";
+    xml << "\n" << tabsString() << "<BinExpr ";
     n->multiplicativeOP.at(multOpIndex)->accept(this);
     xml << ">\n";
     numberOfTabs++;
@@ -102,7 +133,7 @@ void XMLVisitor::visit(ASTNodeTerm *n){
   xml << "\n";
   for(unsigned int multOpIndex = 0; multOpIndex < n->multiplicativeOP.size(); ++multOpIndex){
     numberOfTabs--;
-    xml << tabsString() << "</BinExprNode>\n";
+    xml << tabsString() << "</BinExpr>\n";
   }
 }
 void XMLVisitor::visit(ASTNodeSimpleExpression *n){
@@ -127,7 +158,7 @@ void XMLVisitor::visit(ASTNodeSimpleExpression *n){
 void XMLVisitor::visit(ASTNodeExpression *n){
   unsigned int factorsIndex = 0;
   for(unsigned int multOpIndex = 0; multOpIndex < n->relationalOp.size(); ++multOpIndex){
-    xml << tabsString() << "BinExprNode ";
+    xml << tabsString() << "<BinExprNode ";
     n->relationalOp.at(multOpIndex)->accept(this);
     xml << ">\n";
     numberOfTabs++;
@@ -143,19 +174,62 @@ void XMLVisitor::visit(ASTNodeExpression *n){
     xml << tabsString() << "</BinExprNode>\n";
   }
 }
-void XMLVisitor::visit(ASTNodeAssignment *n){}
-void XMLVisitor::visit(ASTNodeVariableDecl *n){}
-void XMLVisitor::visit(ASTNodeReturnStatement *n){}
-void XMLVisitor::visit(ASTNodeIfStatement *n){}
+void XMLVisitor::visit(ASTNodeAssignment *n){
+  xml << "\n" << tabsString() << "<Assign>\n";
+  numberOfTabs++;
+  xml << tabsString();
+  n->identifier->accept(this);
+  xml << "\n";
+  xml << tabsString();
+  n->expression->accept(this);
+  numberOfTabs--;
+  xml << "\n" << tabsString() << "</Assign>\n";
+}
+void XMLVisitor::visit(ASTNodeVariableDecl *n){
+  xml << "\n" << tabsString() << "<Decl>\n";
+  numberOfTabs++;
+  xml << tabsString() << "<Var ";
+  n->type->accept(this);
+  xml << ">";
+  n->identifier->accept(this);
+  xml << "\n";
+  n->expression->accept(this);
+  numberOfTabs--;
+  xml << "\n" << tabsString() << "</Decl>\n";
+}
+void XMLVisitor::visit(ASTNodeReturnStatement *n){
+  xml << "\n" << tabsString() << "<Return>\n";
+  numberOfTabs++;
+  n->expression->accept(this);
+  numberOfTabs--;
+  xml << "\n" << tabsString() << "</Return>\n";
+}
+void XMLVisitor::visit(ASTNodeIfStatement *n){
+  xml << "\n" << tabsString() << "<IF>\n";
+  numberOfTabs++;
+  n->expression->accept(this);
+  numberOfTabs--;
+  xml << "\n" << tabsString() << "<THEN>\n";
+  numberOfTabs++;
+  n->block->accept(this);
+  numberOfTabs--;
+  if(n->elseBlock){
+    xml << "\n" << tabsString() << "<ELSE>\n";
+    numberOfTabs++;
+    n->elseBlock->accept(this);
+    numberOfTabs--;
+  }
+  xml << "\n" << tabsString() << "<ENDIF>\n";
+}
 void XMLVisitor::visit(ASTNodeForStatement *n){}
 void XMLVisitor::visit(ASTNodeFormalParam *n){
-  xml << "<F_Param>";
-
+  xml << "\n" << tabsString() << "<F_Param>\n";
+  numberOfTabs++;
   n->identifier->accept(this);
   xml << ":";
   n->type->accept(this);
-
-  xml << "</F_Param>";
+  numberOfTabs--;
+  xml << tabsString() << "\n</F_Param>\n";
 }
 void XMLVisitor::visit(ASTNodeFormalParams *n){
   for(int i = 0; i < n->formalParams.size(); ++i){
@@ -163,6 +237,16 @@ void XMLVisitor::visit(ASTNodeFormalParams *n){
   }
 }
 void XMLVisitor::visit(ASTNodeFunctionDecl *n){}
-void XMLVisitor::visit(ASTNodeStatement *n){}
-void XMLVisitor::visit(ASTNodeBlock *n){}
-void XMLVisitor::visit(ASTNodeProgram *n){}
+void XMLVisitor::visit(ASTNodeStatement *n){
+  n->statement->accept(this);
+}
+void XMLVisitor::visit(ASTNodeBlock *n){
+  for(int i = 0; i < n->statements.size(); ++i){
+    n->statements.at(i)->accept(this);
+  }
+}
+void XMLVisitor::visit(ASTNodeProgram *n){
+  for(int i = 0; i < n->statements.size(); ++i){
+    n->statements.at(i)->accept(this);
+  }
+}

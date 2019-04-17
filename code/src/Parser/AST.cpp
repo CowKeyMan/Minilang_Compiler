@@ -4,15 +4,10 @@
 
 using std::cerr;
 
-void printParseErrorAndExit(Token *token){
-  cerr << "error, could not parse token " << token->lexeme << " at line " << token->lineNumber;
-  exit(EXIT_FAILURE);
-}
-
 Token *ASTNode::match(TokenType tt){
   Token *token = tokenManager->nextToken();
   if(token->type != tt){
-    cerr << "error, could not match " << Token::TokenString[tt] << "at line " << token->lineNumber << "\n";
+    cerr << "Error, could not match " << Token::TokenString[tt] << " at line " << token->lineNumber << "\n";
 	  exit(EXIT_FAILURE);
   }else{
     return token;
@@ -105,6 +100,7 @@ bool ASTNodeActualParams::parse(){
   expressions.push_back(expr); // At least one
 
   while(tokenManager->peekToken()->type == COMMA){
+    match(COMMA);
     ASTNode* expr = new ASTNodeExpression(tokenManager);
     if (expr->parse() == false) return false; // expression must be valid
     expressions.push_back(expr);
@@ -114,7 +110,7 @@ bool ASTNodeActualParams::parse(){
 
 // FunctionCall Node
 bool ASTNodeFunctionCall::parse(){
-  ASTNode *id= new ASTNodeActualParams(tokenManager);
+  ASTNode *id= new ASTNodeIdentifier(tokenManager);
   if (id->parse() == false) return false;
   identifier = id;
   
@@ -136,7 +132,7 @@ ASTNodeFunctionCall::~ASTNodeFunctionCall(){
 // SubExpression Node
 bool ASTNodeSubExpression::parse(){
   match(OPEN_BRACKET);
-  ASTNode *expr= new ASTNodeActualParams(tokenManager);
+  ASTNode *expr= new ASTNodeExpression(tokenManager);
   if (expr->parse() == false) return false;
   expression = expr;
   match(CLOSED_BRACKET);
@@ -150,10 +146,10 @@ ASTNodeSubExpression::~ASTNodeSubExpression(){
 bool ASTNodeUnary::parse(){
   switch (tokenManager->peekToken()->type){
     case MINUS:
-      match(MINUS);
+      token = match(MINUS);
     break;
     case NOT:
-      match(NOT);
+      token = match(NOT);
     break;
     default:
       return false;
@@ -517,7 +513,8 @@ ASTNodeFunctionDecl::~ASTNodeFunctionDecl(){
 // Statement Node
 bool ASTNodeStatement::parse(){
   ASTNode* n;
-  switch(tokenManager->peekToken()->type){
+  TokenType tt = tokenManager->peekToken()->type;
+  switch(tt){
     case VAR:
       n = new ASTNodeVariableDecl(tokenManager);
     break;
@@ -542,11 +539,21 @@ bool ASTNodeStatement::parse(){
     default:
       return false;
   }
-  
-  if(statement->parse() == false) return false;
+
+  if(n->parse() == false) return false;
   statement = n;
 
-  return false;
+  switch(tt){
+    case VAR:
+    case ID:
+    case RETURN:
+      match(SEMI_COLON);
+    break;
+    default:
+    break;
+  }
+
+  return true;
 }
 ASTNodeStatement::~ASTNodeStatement(void){
   delete statement;
@@ -556,7 +563,7 @@ ASTNodeStatement::~ASTNodeStatement(void){
 bool ASTNodeBlock::parse(){
   match(OPEN_BRACE);
 
-  while(tokenManager->peekToken() == nullptr){ // parse multiple statements
+  while(tokenManager->peekToken() != nullptr && tokenManager->peekToken()->type != CLOSED_BRACE){ // parse multiple statements
     ASTNode *statement = new ASTNodeStatement(tokenManager);
     if (statement->parse() == false) return false; 
     statements.push_back(statement);
@@ -577,7 +584,6 @@ bool ASTNodeProgram::parse(){
   while(tokenManager->peekToken() != nullptr){
     ASTNode *statement = new ASTNodeStatement(tokenManager);
     if (statement->parse() == false) return false; 
-    cerr<<"HELLO3\n"; // parse multiple statements
     statements.push_back(statement);
   }
   return true;

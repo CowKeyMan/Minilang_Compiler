@@ -14,9 +14,17 @@ Token *TokenManager::peekToken(int steps){
   if(tokenIndex+steps < tokens->size()){
     return &tokens->at(tokenIndex + steps);
   }
-  return nullptr;
+  std::cerr << "Reached end of file while parsing\n";
+  exit(EXIT_SUCCESS);
 }
 
 Token *TokenManager::peekToken(){
   return peekToken(0);
+}
+
+Token *TokenManager::peekTokenUnsafe(int steps){
+  if(tokenIndex+steps < tokens->size()){
+    return &tokens->at(tokenIndex + steps);
+  }
+  return nullptr;
 }

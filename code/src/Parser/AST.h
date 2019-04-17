@@ -128,6 +128,7 @@ class ASTNodeUnary: virtual public ASTNode{
     virtual bool parse(); // returns true if parse was successful
     virtual void accept(Visitor *v);
 
+    Token* token;
     ASTNode* expression;
 };
 
@@ -224,7 +225,7 @@ class ASTNodeIfStatement : virtual public ASTNode{
 
     ASTNode* expression;
     ASTNode* block;
-    ASTNode* elseBlock;
+    ASTNode* elseBlock = NULL;
 };
 
 class ASTNodeForStatement : virtual public ASTNode{
