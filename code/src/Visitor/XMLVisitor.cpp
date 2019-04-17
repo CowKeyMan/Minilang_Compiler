@@ -15,7 +15,7 @@ void XMLVisitor::trimXMLNewLines(){
   string s = xml.str();
 
   unsigned int newLineCount = 0, numberToDelete = 1;
-  for(int i = 0; i < s.length(); ++i){
+  for(unsigned int i = 0; i < s.length(); ++i){
     if(s.at(i) == '\n'){
       newLineCount++;
       if(newLineCount == 2){
@@ -81,7 +81,7 @@ void XMLVisitor::visit(ASTNodeRelationalOp *n){
   xml << "OP=\"" << n->token->lexeme << "\"";
 }
 void XMLVisitor::visit(ASTNodeActualParams *n){
-  for(int i = 0; i < n->expressions.size(); ++i){
+  for(unsigned int i = 0; i < n->expressions.size(); ++i){
     xml << "\n" << tabsString() << "<A_Param>\n";
     numberOfTabs++;
     n->expressions.at(i)->accept(this);
@@ -246,7 +246,7 @@ void XMLVisitor::visit(ASTNodeFormalParam *n){
   xml << " </F_Param>\n";
 }
 void XMLVisitor::visit(ASTNodeFormalParams *n){
-  for(int i = 0; i < n->formalParams.size(); ++i){
+  for(unsigned int i = 0; i < n->formalParams.size(); ++i){
     n->formalParams.at(i)->accept(this);
   }
 }
@@ -270,12 +270,12 @@ void XMLVisitor::visit(ASTNodeStatement *n){
   n->statement->accept(this);
 }
 void XMLVisitor::visit(ASTNodeBlock *n){
-  for(int i = 0; i < n->statements.size(); ++i){
+  for(unsigned int i = 0; i < n->statements.size(); ++i){
     n->statements.at(i)->accept(this);
   }
 }
 void XMLVisitor::visit(ASTNodeProgram *n){
-  for(int i = 0; i < n->statements.size(); ++i){
+  for(unsigned int i = 0; i < n->statements.size(); ++i){
     n->statements.at(i)->accept(this);
   }
 }

@@ -38,8 +38,8 @@ class Visitor{
   public:
     Visitor(){};
     virtual ~Visitor(){};
-    virtual void visit(ASTNode *n) = 0;
-    virtual void visit(ASTNodeType *n){};
+    virtual void visit(ASTNode*) = 0;
+    virtual void visit(ASTNodeType*){};
     virtual void visit(ASTNodeLiteral*){};
     virtual void visit(ASTNodeIdentifier*){};
     virtual void visit(ASTNodeMultiplicativeOp*){};
