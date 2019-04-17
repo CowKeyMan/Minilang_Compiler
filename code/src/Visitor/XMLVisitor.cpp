@@ -90,13 +90,15 @@ void XMLVisitor::visit(ASTNodeActualParams *n){
   }
 }
 void XMLVisitor::visit(ASTNodeFunctionCall *n){
-  xml << "<FN_CALL FN=\"";
+  xml << tabsString() <<"<FN_CALL FN=";
   n->identifier->accept(this);
   xml << "\"\n";
   numberOfTabs++;
-  n->actualParams->accept(this);
+  if(n->actualParams){
+    n->actualParams->accept(this);
+  }
   numberOfTabs--;
-  xml << "\n</FN_CALL FN>";
+  xml << "\n" << tabsString() << "</FN_CALL FN>";
 }
 void XMLVisitor::visit(ASTNodeSubExpression *n){
   n->expression->accept(this);
@@ -186,7 +188,7 @@ void XMLVisitor::visit(ASTNodeAssignment *n){
   xml << "\n" << tabsString() << "</Assign>\n";
 }
 void XMLVisitor::visit(ASTNodeVariableDecl *n){
-  xml << "\n" << tabsString() << "<Decl>\n";
+  xml << "\n" << tabsString() << "<VarDecl>\n";
   numberOfTabs++;
   xml << tabsString() << "<Var ";
   n->type->accept(this);
@@ -195,7 +197,7 @@ void XMLVisitor::visit(ASTNodeVariableDecl *n){
   xml << "\n";
   n->expression->accept(this);
   numberOfTabs--;
-  xml << "\n" << tabsString() << "</Decl>\n";
+  xml << "\n" << tabsString() << "</VarDecl>\n";
 }
 void XMLVisitor::visit(ASTNodeReturnStatement *n){
   xml << "\n" << tabsString() << "<Return>\n";
@@ -219,7 +221,7 @@ void XMLVisitor::visit(ASTNodeIfStatement *n){
     n->elseBlock->accept(this);
     numberOfTabs--;
   }
-  xml << "\n" << tabsString() << "<ENDIF>\n";
+  xml << "\n" << tabsString() << "<END IF>\n";
 }
 void XMLVisitor::visit(ASTNodeForStatement *n){
   xml << "\n" << tabsString() << "<FOR>\n";
@@ -235,20 +237,35 @@ void XMLVisitor::visit(ASTNodeForStatement *n){
   xml << "\n" << tabsString() << "<ENDFOR>\n";
 }
 void XMLVisitor::visit(ASTNodeFormalParam *n){
-  xml << "\n" << tabsString() << "<F_Param>\n";
+  xml << "\n" << tabsString() << "<F_Param> ";
   numberOfTabs++;
   n->identifier->accept(this);
   xml << ":";
   n->type->accept(this);
   numberOfTabs--;
-  xml << tabsString() << "\n</F_Param>\n";
+  xml << " </F_Param>\n";
 }
 void XMLVisitor::visit(ASTNodeFormalParams *n){
   for(int i = 0; i < n->formalParams.size(); ++i){
     n->formalParams.at(i)->accept(this);
   }
 }
-void XMLVisitor::visit(ASTNodeFunctionDecl *n){}
+void XMLVisitor::visit(ASTNodeFunctionDecl *n){
+  xml << "\n" << tabsString() << "<FuncDecl>\n";
+  numberOfTabs++;
+  xml << tabsString() << "<FN ";
+  n->type->accept(this);
+  xml << ">";
+  n->identifier->accept(this);
+  xml << "\n";
+  if(n->formalParams){
+    n->formalParams->accept(this);
+  }
+  xml << "\n";
+  n->block->accept(this);
+  numberOfTabs--;
+  xml << "\n" << tabsString() << "</FuncDecl>\n";
+}
 void XMLVisitor::visit(ASTNodeStatement *n){
   n->statement->accept(this);
 }

@@ -60,8 +60,6 @@ int main(){
     cout << " at line " << tokens.at(parser->getTokenManagerIndex()).lineNumber << "\n";
   }
 
-  
-
   parser.reset(); // freeing pointer optimistions
   tokens = vector<Token>(); // reset tokens vector to free up memory
 

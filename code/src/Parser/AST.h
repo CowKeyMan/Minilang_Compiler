@@ -106,7 +106,7 @@ class ASTNodeFunctionCall : virtual public ASTNode{
     virtual void accept(Visitor *v);
 
     ASTNode* identifier;
-    ASTNode* actualParams;
+    ASTNode* actualParams = NULL;
 };
 
 class ASTNodeSubExpression : virtual public ASTNode{
@@ -274,7 +274,7 @@ class ASTNodeFunctionDecl : virtual public ASTNode{
     virtual void accept(Visitor *v);
 
     ASTNode* identifier;
-    ASTNode* formalParams;
+    ASTNode* formalParams = NULL;
     ASTNode* type;
     ASTNode* block;
 };

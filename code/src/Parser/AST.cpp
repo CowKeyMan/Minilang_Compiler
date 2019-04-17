@@ -122,6 +122,8 @@ bool ASTNodeFunctionCall::parse(){
     if (actualP->parse() == false) return false;
     actualParams = actualP;
   }
+
+  std::cout << "HELLO\n";
   match(CLOSED_BRACKET);
   return true;
 }
@@ -459,7 +461,7 @@ ASTNodeFormalParam::~ASTNodeFormalParam(){
 bool ASTNodeFormalParams::parse(){
   ASTNode *n = new ASTNodeFormalParam(tokenManager);
   if (n->parse() == false) return false;
-  formalParams.push_back(n); // at least one
+  formalParams.push_back(n); 
 
   while(tokenManager->peekToken()->type == COMMA){
     match(COMMA);
