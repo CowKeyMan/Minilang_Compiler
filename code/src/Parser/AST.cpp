@@ -581,7 +581,7 @@ ASTNodeBlock::~ASTNodeBlock(){
 
 // Program Node
 bool ASTNodeProgram::parse(){
-  while(tokenManager->peekToken() != nullptr){
+  while(tokenManager->peekTokenUnsafe(0) != nullptr){
     ASTNode *statement = new ASTNodeStatement(tokenManager);
     if (statement->parse() == false) return false; 
     statements.push_back(statement);

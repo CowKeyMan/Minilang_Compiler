@@ -49,14 +49,18 @@ int main(){
 
   bool successParse = parser->parse();
   cout << (successParse? 1 : 0) << "\n";
-  cout << "hello\n";
   if(successParse){
     XMLVisitor *x = new XMLVisitor();
     ASTNode* tree = parser->getTree();
     tree->accept(x);
     x->trimXMLNewLines();
     cout << x->getXML();
+  }else{
+    cout << "Unexpected token " << tokens.at(parser->getTokenManagerIndex()).lexeme;
+    cout << " at line " << tokens.at(parser->getTokenManagerIndex()).lineNumber << "\n";
   }
+
+  
 
   parser.reset(); // freeing pointer optimistions
   tokens = vector<Token>(); // reset tokens vector to free up memory

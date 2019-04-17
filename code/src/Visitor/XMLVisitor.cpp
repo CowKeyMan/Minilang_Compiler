@@ -221,7 +221,19 @@ void XMLVisitor::visit(ASTNodeIfStatement *n){
   }
   xml << "\n" << tabsString() << "<ENDIF>\n";
 }
-void XMLVisitor::visit(ASTNodeForStatement *n){}
+void XMLVisitor::visit(ASTNodeForStatement *n){
+  xml << "\n" << tabsString() << "<FOR>\n";
+  numberOfTabs++;
+  if(n->variableDecl) n->variableDecl->accept(this);
+  n->expression->accept(this);
+  if(n->assignment) n->assignment->accept(this);
+  numberOfTabs--;
+  xml << "\n" << tabsString() << "<DO>\n";
+  numberOfTabs++;
+  n->block->accept(this);
+  numberOfTabs--;
+  xml << "\n" << tabsString() << "<ENDFOR>\n";
+}
 void XMLVisitor::visit(ASTNodeFormalParam *n){
   xml << "\n" << tabsString() << "<F_Param>\n";
   numberOfTabs++;

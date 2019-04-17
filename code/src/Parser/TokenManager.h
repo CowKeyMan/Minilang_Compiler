@@ -14,4 +14,5 @@ class TokenManager{
     Token *peekToken(int steps); // Peek more than 1 token away
     Token *peekToken(); // See what the next token is without dequeuing it
     Token *peekTokenUnsafe(int steps); // Returns null ptr rather thn exiting if there is no token
+    int index(){ return tokenIndex; }
 };

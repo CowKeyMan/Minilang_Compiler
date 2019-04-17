@@ -20,6 +20,7 @@ class Parser{
     ~Parser();
     bool parse();
     ASTNode *getTree() { return tree; }
+    int getTokenManagerIndex() { return tokenManager->index(); }
 };
 
 #endif // PARSER_H

@@ -225,7 +225,7 @@ class ASTNodeIfStatement : virtual public ASTNode{
 
     ASTNode* expression;
     ASTNode* block;
-    ASTNode* elseBlock = NULL;
+    ASTNode* elseBlock = NULL; // optional
 };
 
 class ASTNodeForStatement : virtual public ASTNode{
@@ -236,10 +236,10 @@ class ASTNodeForStatement : virtual public ASTNode{
     virtual bool parse(); // returns true if parse was successful
     virtual void accept(Visitor *v);
 
-    ASTNode* variableDecl;
+    ASTNode* variableDecl = NULL; // optional
     ASTNode* expression;
-    ASTNode* assignment;
-    ASTNode* block;
+    ASTNode* assignment = NULL; // optional
+    ASTNode* block = NULL; // optional
 };
 
 class ASTNodeFormalParam : virtual public ASTNode{
