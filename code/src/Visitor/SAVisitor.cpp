@@ -31,19 +31,20 @@ TokenType* SAVisitor::lookup(string s){
 }
 
 void *SAVisitor::visit(ASTNodeType *n){
+  TokenType* tt = nullptr;
   switch(n->token->type){
     case TYPE_FLOAT:
-      return (void*)FLOAT;
+      *tt = FLOAT;
     case TYPE_INT:
-      return (void*)INT;
+      *tt = INT;
     case TYPE_BOOL:
-      return (void*)BOOL;
+      *tt = BOOL;
     default:
-      return nullptr;
   }
+  return (TokenType*)tt;
 }
 void *SAVisitor::visit(ASTNodeLiteral *n){
-  return &n->token->type;
+  return (TokenType*)&n->token->type;
 }
 void *SAVisitor::visit(ASTNodeIdentifier *n){
   TokenType *tt = lookup(n->token->lexeme);
@@ -52,23 +53,23 @@ void *SAVisitor::visit(ASTNodeIdentifier *n){
     cerr << " at line number " << n->token->lineNumber << "\n";
     exit(EXIT_FAILURE);
   }
-  return &n->token;
+  return (Token*)&n->token;
 }
 void *SAVisitor::visit(ASTNodeMultiplicativeOp *n){
-  return &n->token;
+  return (Token*)&n->token;
 }
 void *SAVisitor::visit(ASTNodeAdditiveOp *n){
-  return &n->token;
+  return (Token*)&n->token;
 }
 void *SAVisitor::visit(ASTNodeRelationalOp *n){
-  return &n->token;
+  return (Token*)&n->token;
 }
 void *SAVisitor::visit(ASTNodeActualParams *n){
   vector<TokenType*> *types = new vector<TokenType*>();
   for(unsigned int i = 0; i < n->expressions.size(); ++i){
     types->push_back((TokenType*)n->expressions[i]->accept(this));
   }
-  return types;
+  return (vector<TokenType*>*)types;
 }
 void *SAVisitor::visit(ASTNodeFunctionCall *n){
   // if function not found in functions table
@@ -87,10 +88,10 @@ void *SAVisitor::visit(ASTNodeFunctionCall *n){
       exit(EXIT_FAILURE);
     }
   }
-  return &identifier->type;
+  return (TokenType*)&identifier->type;
 }
 void *SAVisitor::visit(ASTNodeSubExpression *n){
-  return n->expression->accept(this);
+  return (TokenType*)n->expression->accept(this);
 }
 void *SAVisitor::visit(ASTNodeUnary *n){
   TokenType *tt = (TokenType*)n->expression->accept(this);
@@ -118,12 +119,14 @@ void *SAVisitor::visit(ASTNodeUnary *n){
     default:
     break;
   }
-  return tt;
+  return (TokenType*)tt;
 }
 void *SAVisitor::visit(ASTNodeFactor *n){
-  // return 
+  return (TokenType*)n->accept(this);
 }
-void *SAVisitor::visit(ASTNodeTerm *n){}
+void *SAVisitor::visit(ASTNodeTerm *n){
+  
+}
 void *SAVisitor::visit(ASTNodeSimpleExpression *n){}
 void *SAVisitor::visit(ASTNodeExpression *n){}
 void *SAVisitor::visit(ASTNodeAssignment *n){}

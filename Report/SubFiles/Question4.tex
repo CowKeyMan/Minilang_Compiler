@@ -43,12 +43,14 @@ Next, the visit classes are discussed. Each one of these, although described as 
 	\item Unary : Type
 		\subitem validates that the unary operator is applied on the proper type and returns the type of the expression
 	\item Factor : Type
-		\subitem returns the type of its node	
-	\item SimpleExpression : Type
+		\subitem returns the type of its node
+	\item Term
 		\subitem validates that any operators are being used properly and are of the correct type
-		\subitem returns the type after checking and possibly performing type casting (ex. "4+6.8" returns float, while 4*true gives an error)
+	\item SimpleExpression : Type
+		\subitem validates that any operators are being used properly and are of the correct type (ex. "4*6.8" returns float, while 9*true gives an error)
+		\subitem very similar to Term but with additive operators instead
 	\item Expression : Type
-		\subitem very similar to SimpleExpression but with additive operators instead
+		\subitem very similar to Term and Simple but with relational operators instead
 	\item Assignment : void
 		\subitem validates the identifier exists
 		\subitem validates the identifier's type and type of expression match
