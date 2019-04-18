@@ -2,10 +2,14 @@
 #define VISITOR_H
 
 #include <sstream>
+#include <stack>
+#include <map>
 
 #include "../Parser/AST.h"
 
 using std::stringstream;
+using std::stack;
+using std::map;
 
 class ASTNode;
 class ASTNodeType;
@@ -102,6 +106,45 @@ class XMLVisitor : virtual public Visitor{
     stringstream xml;
     unsigned int numberOfTabs = 0;
     string tabsString();
+};
+
+// Semantic Analysis
+class SAVisitor : virtual public Visitor{
+  public:
+    SAVisitor(){};
+    virtual ~SAVisitor(){};
+    virtual void visit(ASTNode*){};
+    virtual void visit(ASTNodeType *n);
+    virtual void visit(ASTNodeLiteral *n);
+    virtual void visit(ASTNodeIdentifier *n);
+    virtual void visit(ASTNodeMultiplicativeOp *n);
+    virtual void visit(ASTNodeAdditiveOp *n);
+    virtual void visit(ASTNodeRelationalOp *n);
+    virtual void visit(ASTNodeActualParams *n);
+    virtual void visit(ASTNodeFunctionCall *n);
+    virtual void visit(ASTNodeSubExpression *n);
+    virtual void visit(ASTNodeUnary *n);
+    virtual void visit(ASTNodeFactor *n);
+    virtual void visit(ASTNodeTerm *n);
+    virtual void visit(ASTNodeSimpleExpression *n);
+    virtual void visit(ASTNodeExpression *n);
+    virtual void visit(ASTNodeAssignment *n);
+    virtual void visit(ASTNodeVariableDecl *n);
+    virtual void visit(ASTNodeReturnStatement *n);
+    virtual void visit(ASTNodeIfStatement *n);
+    virtual void visit(ASTNodeForStatement *n);
+    virtual void visit(ASTNodeFormalParam *n);
+    virtual void visit(ASTNodeFormalParams *n);
+    virtual void visit(ASTNodeFunctionDecl *n);
+    virtual void visit(ASTNodeStatement *n);
+    virtual void visit(ASTNodeBlock *n);
+    virtual void visit(ASTNodeProgram *n);
+  private:
+    vector<map<string, TokenType>> scope = vector<map<string, TokenType>>();
+    void newScope(); // add scope as the 0 index of the vector
+    void insert(string, TokenType); // in current scope
+    void removeScope(); // remove scope at position 0
+    TokenType lookup(string); // lookup starting from vector 0 and going down
 };
 
 #endif // VISITOR_H
