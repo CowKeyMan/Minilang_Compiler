@@ -54,6 +54,8 @@ The parser takes the tokens and puts them into a parse tree based on the grammar
 		\subitem (Identifier) \ul{EQUALS} (Expression)
 	\item VariableDecl
 		\subitem \ul{VAR} (Identifier) \ul{COLON} (Type)	\ul{EQ} (Expression)
+	\item PrintStatement
+		\subitem \ul{PRINT} (Expression)
 	\item ReturnStatement
 		\subitem \ul{RETURN} (Expression)
 	\item IfStatement
@@ -69,6 +71,7 @@ The parser takes the tokens and puts them into a parse tree based on the grammar
 	\item Statement
 		\subitem (VariableDecl)
 		\subitem (Assignment)
+		\subitem (PrintStatement)
 		\subitem (IfStatement)
 		\subitem (ForStatement)
 		\subitem (ReturnStatement)
@@ -80,13 +83,13 @@ The parser takes the tokens and puts them into a parse tree based on the grammar
 		\subitem \{ (Statement) \}
 \end{itemize}
 
-Since it is an Abstract Syntax tree, the following tokens are matched and immediately discarded by the parser: OPEN\un BRACKET, CLOSED\un BRACKET, OPEN\un BRACE, CLOSED \un BRACE, SEMI\un COLON, COLON, COMMA, FN, VAR, RETURN, IF, ELSE, FOR
+Since it is an Abstract Syntax tree, the following tokens are matched and immediately discarded by the parser: OPEN\un BRACKET, CLOSED\un BRACKET, OPEN\un BRACE, CLOSED \un BRACE, SEMI\un COLON, COLON, COMMA, FN, VAR, RETURN, IF, ELSE, FOR, PRINT
 
 From the above, it is shown that there are 25 possible types of nodes. This is because the tree is not fully abstract. The advantage of this is that operator precedence for expressions is handled automatically by the grammar, while the disadvantage is that it leads to more complexity, since each type of node needs to be catered for.
 
 Regarding implementation, the \textit{Parser} class receives the tokens and stores them in a \textit{TokenManager} so that they are managed by the functions in this manager. The \textit{Parser} class also holds the root node of the recursive AST which will be generated when the \textit{parse()} method is called.
 
-The 25 ASTNodes classes (26 counting the abstract class used for polymorphism) each have a parse method to parse their own form accordingly, and store what is parsed in their own way. For example, the \textit{Type} ASTNode, will store a token whose type is TYPE\un FLOAT, TYPE\un INT or TYPE\un BOOL. Meanwhile, a program will contain a list (vector) of statements.
+The 26 ASTNodes classes (27 counting the abstract class used for polymorphism) each have a parse method to parse their own form accordingly, and store what is parsed in their own way. For example, the \textit{Type} ASTNode, will store a token whose type is TYPE\un FLOAT, TYPE\un INT or TYPE\un BOOL. Meanwhile, a program will contain a list (vector) of statements.
 
 Each parse method for the ASTNodes will return true or false, to tell the callback recursion whether it was successful or not. Since a predictive parser with follow sets is used, then all should return true, and if one is false, then parsing fails and the error at that line is reported to the user. The function \textit{match(TokenType)} is used to check if  token is matched. It is used especially in cases where a bracket needs to be matched. If the required token type is not found, then the error that the required token was not found is reported to the user and the parser exits.
 \\ \\

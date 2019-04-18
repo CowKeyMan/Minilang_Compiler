@@ -1,0 +1,88 @@
+\section{Task 4 - Semantic Analysis}
+\subsection{Explanation and Implementation}
+The task of the semantic analysis is to perform type checking and scope checking by traversing the AST and making the required checks at each node.
+
+In order to achieve this, a new visitor inherited class was created called \textit{SAVisitor}. It contains the following functionality and data in order to perform its job (as well as the visit methods).
+
+\begin{lstlisting}[language=C++]
+vector<map<string, TokenType>> scope;
+void newScope(); // add scope as the 0 index of the vector
+void insert(string, TokenType); // in current scope
+void removeScope(); // remove scope at position 0
+// set as pointer to TokenType due to the need to make it return null
+TokenType* lookup(string); // lookup starting from index 0 and going down
+// a map, mapping function names to their parameter types
+map <string, vector<TokenType> > functions;
+TokenType currentFunctionType;
+\end{lstlisting}
+
+The scope vector is treated like a stack, but created as a vector to be iterated over easily. New entries are inserted at the front (position 0) of the vector and same thing with deletions. When iterating, iteration also starts from the front, so new entries cover shadow old ones (scope shadowing).
+\\\\
+Next, the visit classes are discussed. Each one of these, although described as a \textit{void*}, has some form of concrete return value, and not all of them are the same. The functionality of each method and their return type is discussed below, for each type of ASTNode visit method:
+\begin{itemize}
+	\item Type : Type 
+		\subitem returns FLOAT, INT or BOOL(the type) depending on its token
+	\item Literal : Type
+		\subitem returns the type of its literal value
+	\item Identifier : Type
+		\subitem returns the type of its identifier obtained from the symbol table. Error if it is not found
+	\item MultiplicativeOp : Operator Token (ex. TIMES, AND)
+		\subitem returns the operator itself, so that the expression node it belongs to can check that the operator supports the types it is operating upon. (Ex. "7*8" is valid, but "7 and 8" is not)
+	\item RelationalOp : Operator Token (ex. PLUS, OR)
+		\subitem very similar to MultiplicativeOp but with different operators.
+	\item ActualParams : Vector of Type
+		\subitem iterates through all the parameters and returns a vector of all their types, so they can be matched with the formal parameters by the FunctionDecl node.
+	\item FunctionCall : Void
+		\subitem validates the function exists in the current scope 
+		\subitem validates the parameters provided are of the required type
+		\subitem If any of these are false, the required errors are reported and program exits
+	\item SubExpression : Type
+		\item returns the type of the expression it has
+	\item Unary : Type
+		\subitem validates that the unary operator is applied on the proper type and returns the type of the expression
+	\item Factor : Type
+		\subitem returns the type of its node	
+	\item SimpleExpression : Type
+		\subitem validates that any operators are being used properly and are of the correct type
+		\subitem returns the type after checking and possibly performing type casting (ex. "4+6.8" returns float, while 4*true gives an error)
+	\item Expression : Type
+		\subitem very similar to SimpleExpression but with additive operators instead
+	\item Assignment : void
+		\subitem validates the identifier exists
+		\subitem validates the identifier's type and type of expression match
+	\item VariableDecl : void
+		\subitem makes sure that the types of the given type and expression are not conflicting
+		\subitem adds the identifier to the symbol table, with the given type. Error if it already exists
+	\item PrintStatement : void
+		\subitem verify the given expression is correct
+	\item ReturnStatement : void
+		\subitem makes sure that the type of the expression also matches the type of the current function it is within by using the \textit{currentFunctionType} variable.
+	\item IfStatement : void
+		\subitem validates expression
+		\subitem validates block
+		\subitem possibly validates else block
+	\item ForStatement : void
+		\subitem creates new scope
+		\subitem Performs and validates the variable decleartion
+		\subitem validates expression
+		\subitem validates assignment
+		\subitem validates block
+		\subitem pops scope
+	\item FormalParam : Type
+		\subitem put the each paramater in the current symbol table
+		\subitem returns type of parameter
+	\item FormalParams : Vector of Type
+		\subitem iterates trough each FormalParam declaration adding them to the vector
+	\item FunctionDecl : void
+		\subitem start new scope
+		\subitem add function to the functionParams map after validating the FormalParams(Note: they are added in the scope within their own methods)
+		\subitem set the currentFunctionType to the type of the function so ReturnStatement can know
+		\subitem validate the Block
+	\item Statement : void
+		\subitem validate the statement
+	\item Block
+		\subitem start new scope
+		\subitem validate the list of statements
+	\item Program
+		\subitem validate the list of statements
+\end{itemize}

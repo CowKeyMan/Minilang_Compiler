@@ -14,7 +14,7 @@ class ASTNode{
     ASTNode(TokenManager *_tokenManager){ tokenManager = _tokenManager; };
     virtual ~ASTNode(){};
     virtual bool parse() = 0; // returns true if parse was successful
-    virtual void *accept(Visitor *v);
+    virtual void *accept(Visitor *v) = 0;
   protected:
     TokenManager *tokenManager;
     Token *match(TokenType tokenType); // match a TokenType, make sure it exists
@@ -201,6 +201,17 @@ class ASTNodeVariableDecl : virtual public ASTNode{
 
     ASTNode* identifier;
     ASTNode* type;
+    ASTNode* expression;
+};
+
+class ASTNodePrintStatement : virtual public ASTNode{
+  public:
+    // costructor is same as parent
+    ASTNodePrintStatement(TokenManager *tokenManager) : ASTNode(tokenManager) {};
+    virtual ~ASTNodePrintStatement();
+    virtual bool parse(); // returns true if parse was successful
+    virtual void *accept(Visitor *v);
+
     ASTNode* expression;
 };
 

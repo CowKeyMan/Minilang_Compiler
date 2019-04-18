@@ -28,6 +28,7 @@ class ASTNodeSimpleExpression;
 class ASTNodeExpression;
 class ASTNodeAssignment;
 class ASTNodeVariableDecl;
+class ASTNodePrintStatement;
 class ASTNodeReturnStatement;
 class ASTNodeIfStatement;
 class ASTNodeForStatement;
@@ -59,6 +60,7 @@ class Visitor{
     virtual void *visit(ASTNodeExpression*) = 0;
     virtual void *visit(ASTNodeAssignment*) = 0;
     virtual void *visit(ASTNodeVariableDecl*) = 0;
+    virtual void *visit(ASTNodePrintStatement*) = 0;
     virtual void *visit(ASTNodeReturnStatement*) = 0;
     virtual void *visit(ASTNodeIfStatement*) = 0;
     virtual void *visit(ASTNodeForStatement*) = 0;
@@ -93,6 +95,7 @@ class XMLVisitor : virtual public Visitor{
     virtual void *visit(ASTNodeExpression *n);
     virtual void *visit(ASTNodeAssignment *n);
     virtual void *visit(ASTNodeVariableDecl *n);
+    virtual void *visit(ASTNodePrintStatement *n);
     virtual void *visit(ASTNodeReturnStatement *n);
     virtual void *visit(ASTNodeIfStatement *n);
     virtual void *visit(ASTNodeForStatement *n);
@@ -132,6 +135,7 @@ class SAVisitor : virtual public Visitor{
     virtual void *visit(ASTNodeExpression *n);
     virtual void *visit(ASTNodeAssignment *n);
     virtual void *visit(ASTNodeVariableDecl *n);
+    virtual void *visit(ASTNodePrintStatement*) = 0;
     virtual void *visit(ASTNodeReturnStatement *n);
     virtual void *visit(ASTNodeIfStatement *n);
     virtual void *visit(ASTNodeForStatement *n);
@@ -142,11 +146,15 @@ class SAVisitor : virtual public Visitor{
     virtual void *visit(ASTNodeBlock *n);
     virtual void *visit(ASTNodeProgram *n);
   private:
-    vector<map<string, TokenType>> scope = vector<map<string, TokenType>>();
-    void *newScope(); // add scope as the 0 index of the vector
-    void *insert(string, TokenType); // in current scope
-    void *removeScope(); // remove scope at position 0
-    TokenType lookup(string); // lookup starting from vector 0 and going down
+    vector<map<string, TokenType>> scope;
+    void newScope(); // add scope as the 0 index of the vector
+    void insert(string, TokenType); // in current scope
+    void removeScope(); // remove scope at position 0
+    // set as pointer to TokenType due to the need to make it return null
+    TokenType* lookup(string); // lookup starting from vector 0 and going down
+    // a map, mapping function names to their parameter types
+    map <string, vector<TokenType> > functions; 
+    TokenType currentFunctionType;
 };
 
 #endif // VISITOR_H

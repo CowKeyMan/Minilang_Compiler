@@ -12,7 +12,8 @@ enum TokenType{
   IF, ELSE, FOR, WHILE, FN, RETURN, TYPE_BOOL, TYPE_FLOAT, TYPE_INT, VAR, //keywords
   COLON, SEMI_COLON, COMMA, //punctuation
   OPEN_BRACKET, CLOSED_BRACKET, OPEN_BRACE, CLOSED_BRACE, //brackets punctuation
-  COMMENT
+  COMMENT,
+  PRINT // print keyword
 };
 
 class Token{

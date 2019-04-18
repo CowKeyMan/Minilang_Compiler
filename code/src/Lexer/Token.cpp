@@ -12,7 +12,8 @@ string Token::TokenString[] = {
   "IF", "ELSE", "FOR", "WHILE", "FN", "RETURN", "TYPE_BOOL", "TYPE_FLOAT", "TYPE_INT", "VAR", //keywords
   "COLON", "SEMI_COLON", "COMMA", //punctuation
   "OPEN_BRACKET", "CLOSED_BRACKET", "OPEN_BRACE", "CLOSED_BRACE", //brackets punctuation
-  "COMMENT"
+  "COMMENT",
+  "PRINT" // print keyword
 };
 
 void Token::printToken(){
@@ -40,11 +41,12 @@ keyword_token my_keywords[] = {
   {"int", TYPE_INT},
   {"var", VAR},
   {"true", BOOL},
-  {"false", BOOL}
+  {"false", BOOL},
+  {"print", PRINT}
 };
 
 Token processAlpha(string lexeme, int lineNumber){
-  for(uint8_t i = 0; i < arraysize(my_keywords); ++i){
+  for(uint8_t i = 0; i < sizeof(my_keywords)/sizeof(keyword_token); ++i){
     if(lexeme == my_keywords[i].text){
       return Token(my_keywords[i].tok_type, lexeme, 0.0f, lineNumber);
     }
@@ -74,7 +76,7 @@ character_token normal_punctuation[] = {
 };
 
 Token processNormalPunctuation(string lexeme, int lineNumber){
-  for(uint8_t i = 0; i < arraysize(normal_punctuation); ++i){
+  for(uint8_t i = 0; i < sizeof(normal_punctuation)/sizeof(character_token); ++i){
     if(lexeme[0] == normal_punctuation[i].character){
       return Token(normal_punctuation[i].token, lexeme, 0.0f, lineNumber);
     }

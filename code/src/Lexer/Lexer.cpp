@@ -6,13 +6,13 @@
 using std::cerr;
 
 void Lexer::lex(){
-  int fileIndex = 0; // index in the file. Increased by 1 with each character read
+  unsigned int fileIndex = 0; // index in the file. Increased by 1 with each character read
   char c; // the current character being read
   State state = STA; // the current state. Starts at the start state
   string lexeme = ""; // the current lexeme. Starts off empty
 
   do{ // read character by character until end of file
-    char c = file[fileIndex++]; // get next character
+    c = file[fileIndex++]; // get next character
 
     if(c == '\n'){
       lineNumber++; // for debugging
@@ -176,14 +176,14 @@ void Lexer::process_lexeme(string lexeme, State state){
 }
 
 void Lexer::printTokens(){
-  for(int i = 0; i < tokens.size(); ++i){
+  for(unsigned int i = 0; i < tokens.size(); ++i){
     tokens[i].printToken();
   }
 }
 
 void Lexer::removeComments(){
   for(unsigned int i = 0 ; i < tokens.size(); ++i){
-    if(tokens.at(i).type == COMMENT){
+    if(tokens[i].type == COMMENT){
       tokens.erase(tokens.begin() + i);
     }
   }

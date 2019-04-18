@@ -216,6 +216,14 @@ void *XMLVisitor::visit(ASTNodeVariableDecl *n){
   xml << "\n" << tabsString() << "</VarDecl>\n";
   return 0;
 }
+void *XMLVisitor::visit(ASTNodePrintStatement *n){
+  xml << "\n" << tabsString() << "<Print>\n";
+  numberOfTabs++;
+  n->expression->accept(this);
+  numberOfTabs--;
+  xml << "\n" << tabsString() << "</Print>\n";
+  return 0;
+}
 void *XMLVisitor::visit(ASTNodeReturnStatement *n){
   xml << "\n" << tabsString() << "<Return>\n";
   numberOfTabs++;

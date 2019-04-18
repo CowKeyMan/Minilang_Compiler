@@ -48,20 +48,22 @@ int main(){
   parser = unique_ptr<Parser>( new Parser(&tokens) );
 
   bool successParse = parser->parse();
-  cout << (successParse? 1 : 0) << "\n";
-  if(successParse){
-    XMLVisitor *x = new XMLVisitor();
-    ASTNode* tree = parser->getTree();
-    tree->accept(x);
-    x->trimXMLNewLines();
-    cout << x->getXML();
-  }else{
-    cout << "Unexpected token " << tokens.at(parser->getTokenManagerIndex()).lexeme;
-    cout << " at line " << tokens.at(parser->getTokenManagerIndex()).lineNumber << "\n";
+  cout << (successParse? "Parsing successful" : "Error while parsing") << "\n";
+  if(! successParse){
+    cout << "Unexpected token " << tokens[parser->getTokenManagerIndex()].lexeme;
+    cout << " at line " << tokens[parser->getTokenManagerIndex()].lineNumber << "\n";
+    exit(EXIT_FAILURE);
   }
+  
+  // Do XML Generation pass and print it to user
+  XMLVisitor *x = new XMLVisitor();
+  ASTNode* tree = parser->getTree();
+  tree->accept(x); // Generate the xml
+  x->trimXMLNewLines();
+  cout << x->getXML();
 
-  parser.reset(); // freeing pointer optimistions
-  tokens = vector<Token>(); // reset tokens vector to free up memory
+  parser.reset();
+  tokens = vector<Token>();
 
   return 0;
 

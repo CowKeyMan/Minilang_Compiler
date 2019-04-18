@@ -228,10 +228,10 @@ bool ASTNodeTerm::parse(){
 }
 ASTNodeTerm::~ASTNodeTerm(){
   for(uint8_t i = 0; i < factors.size(); ++i){
-    delete factors.at(i);
+    delete factors[i];
   }
   for(uint8_t i = 0; i < multiplicativeOP.size(); ++i){
-    delete multiplicativeOP.at(i);
+    delete multiplicativeOP[i];
   }
 }
 
@@ -261,10 +261,10 @@ bool ASTNodeSimpleExpression::parse(){
 }
 ASTNodeSimpleExpression::~ASTNodeSimpleExpression(){
   for(uint8_t i = 0; i < terms.size(); ++i){
-    delete terms.at(i);
+    delete terms[i];
   }
   for(uint8_t i = 0; i < additiveOP.size(); ++i){
-    delete additiveOP.at(i);
+    delete additiveOP[i];
   }
 }
 
@@ -298,10 +298,10 @@ bool ASTNodeExpression::parse(){
 }
 ASTNodeExpression::~ASTNodeExpression(){
   for(uint8_t i = 0; i < simpleExpressions.size(); ++i){
-    delete simpleExpressions.at(i);
+    delete simpleExpressions[i];
   }
   for(uint8_t i = 0; i < relationalOp.size(); ++i){
-    delete relationalOp.at(i);
+    delete relationalOp[i];
   }
 }
 
@@ -349,6 +349,20 @@ bool ASTNodeVariableDecl::parse(){
 ASTNodeVariableDecl::~ASTNodeVariableDecl(){
   delete identifier;
   delete type;
+  delete expression;
+}
+
+// PrintStatement Node
+bool ASTNodePrintStatement::parse(){
+  match(PRINT);
+
+  ASTNode *n = new ASTNodeExpression(tokenManager);
+  if (n->parse() == false) return false;
+  expression = n;
+
+  return true;
+}
+ASTNodePrintStatement::~ASTNodePrintStatement(){
   delete expression;
 }
 
@@ -474,7 +488,7 @@ bool ASTNodeFormalParams::parse(){
 }
 ASTNodeFormalParams::~ASTNodeFormalParams(){
   for(uint8_t i = 0; i < formalParams.size(); ++i){
-    delete formalParams.at(i);
+    delete formalParams[i];
   }
 }
 
@@ -522,6 +536,9 @@ bool ASTNodeStatement::parse(){
     case ID:
       n = new ASTNodeAssignment(tokenManager);
     break;
+    case PRINT:
+      n = new ASTNodePrintStatement(tokenManager);
+    break;
     case IF:
       n = new ASTNodeIfStatement(tokenManager);
     break;
@@ -548,6 +565,7 @@ bool ASTNodeStatement::parse(){
     case VAR:
     case ID:
     case RETURN:
+    case PRINT:
       match(SEMI_COLON);
     break;
     default:
@@ -576,7 +594,7 @@ bool ASTNodeBlock::parse(){
 }
 ASTNodeBlock::~ASTNodeBlock(){
   for(uint8_t i = 0; i < statements.size(); ++i){
-    delete statements.at(i);
+    delete statements[i];
   }
 }
 
@@ -591,7 +609,7 @@ bool ASTNodeProgram::parse(){
 }
 ASTNodeProgram::~ASTNodeProgram(){
   for(uint8_t i = 0; i < statements.size(); ++i){
-    delete statements.at(i);
+    delete statements[i];
   }
 }
 
@@ -644,6 +662,9 @@ void *ASTNodeAssignment::accept(Visitor *v){
   return v->visit(this);
 }
 void *ASTNodeVariableDecl::accept(Visitor *v){
+  return v->visit(this);
+}
+void *ASTNodePrintStatement::accept(Visitor *v){
   return v->visit(this);
 }
 void *ASTNodeReturnStatement::accept(Visitor *v){

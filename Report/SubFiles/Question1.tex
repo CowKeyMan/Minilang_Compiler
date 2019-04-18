@@ -62,7 +62,7 @@ class Token{
 
 The final states result in some token. The following is a list of which states can result to which tokens (based on the lexeme).
 \begin{enumerate}
-	\item S0: PLUS, OPEN\textunderscore BRACKET, CLOSED\textunderscore BRACKET, OPEN\textunderscore BRACE, CLOSED\textunderscore BRACE, COLON, SEMI\textunderscore COLON, COMMA, TIMES
+	\item S0: PLUS, MINUS, OPEN\textunderscore BRACKET, CLOSED\textunderscore BRACKET, OPEN\textunderscore BRACE, CLOSED\textunderscore BRACE, COLON, SEMI\textunderscore COLON, COMMA, TIMES
 	\item S2: NE
 	\item S3: INT
 	\item S5: FLOAT
@@ -88,21 +88,22 @@ struct keyword_token{
 };
 
 keyword_token my_keywords[] = {
-	{"and", Token::AND},
-	{"or", Token::OR},
-	{"not", Token::NOT},
-	{"if", Token::IF},
-	{"else", Token::ELSE},
-	{"for", Token::FOR},
-	{"while", Token::WHILE},
-	{"fn", Token::FN},
-	{"return", Token::RETURN},
-	{"bool", Token::TYPE_BOOL},
-	{"float", Token::TYPE_FLOAT},
-	{"int", Token::TYPE_INT},
-	{"var", Token::VAR},
-	{"true", Token::BOOL},
-	{"false", Token::BOOL}
+	{"and", AND},
+	{"or", OR},
+	{"not", NOT},
+	{"if", IF},
+	{"else", ELSE},
+	{"for", FOR},
+	{"while", WHILE},
+	{"fn", FN},
+	{"return", RETURN},
+	{"bool", TYPE_BOOL},
+	{"float", TYPE_FLOAT},
+	{"int", TYPE_INT},
+	{"var", VAR},
+	{"true", BOOL},
+	{"false", BOOL}
+	{"print", PRINT}
 };
 \end{lstlisting}
 
