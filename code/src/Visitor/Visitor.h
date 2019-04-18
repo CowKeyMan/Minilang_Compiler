@@ -148,13 +148,14 @@ class SAVisitor : virtual public Visitor{
   private:
     vector<map<string, TokenType>> scope;
     void newScope(); // add scope as the 0 index of the vector
-    void insert(Token*); // in current scope
+    void insert(string, TokenType); // in current scope
     void removeScope(); // remove scope at position 0
     // set as pointer to TokenType due to the need to make it return null
     TokenType* lookup(string); // lookup starting from vector 0 and going down
     // a map, mapping function names to their parameter types
     map <string, vector<TokenType> > functions; 
     TokenType currentFunctionType;
+    int lineNumber = 0;
 };
 
 #endif // VISITOR_H

@@ -24,13 +24,13 @@ Next, the visit classes are discussed. Each one of these, although described as 
 		\subitem returns FLOAT, INT or BOOL(the type) depending on its token
 	\item Literal : Type
 		\subitem returns the type of its literal value
-	\item Identifier : Type
-		\subitem returns the type of its identifier obtained from the symbol table. Error if it is not found
-	\item MultiplicativeOp : Operator Token (ex. TIMES, AND)
+	\item Identifier : string (the lexeme of the identifier token)
+		\subitem returns name of the identifier. Lookup is handled by parent node
+	\item MultiplicativeOp : Type (ex. TIMES, AND)
 		\subitem returns the operator itself, so that the expression node it belongs to can check that the operator supports the types it is operating upon. (Ex. "7*8" is valid, but "7 and 8" is not)
-	\item MultiplicativeOp : Operator Token (ex. PLUS, OR)
+	\item MultiplicativeOp : Token (ex. PLUS, OR)
 		\subitem very similar to MultiplicativeOp but with different operators
-	\item RelationalOp : Operator Token (ex. EQQ, ST)
+	\item RelationalOp : Type (ex. EQQ, ST)
 		\subitem very similar to MultiplicativeOp but with different operators
 	\item ActualParams : Vector of Type
 		\subitem iterates through all the parameters and returns a vector of all their types, so they can be matched with the formal parameters by the FunctionDecl node.
@@ -64,7 +64,7 @@ Next, the visit classes are discussed. Each one of these, although described as 
 	\item IfStatement : void
 		\subitem validates expression
 		\subitem validates block
-		\subitem possibly validates else block
+		\subitem validates else block if it exists
 	\item ForStatement : void
 		\subitem creates new scope
 		\subitem Performs and validates the variable decleartion

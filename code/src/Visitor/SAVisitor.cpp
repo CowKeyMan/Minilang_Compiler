@@ -9,14 +9,14 @@ using std::cerr;
 void SAVisitor::newScope(){
   scope.push_back(map<string, TokenType>());
 }
-void SAVisitor::insert(Token *t){
+void SAVisitor::insert(string s, TokenType tt){
   // if lexeme already exists in current scope or is a function name
-  if(scope[0].count(t->lexeme) || functions.count(t->lexeme)){
-    cerr << "Symbol " << t->lexeme << " at line " << t->lineNumber;
+  if(scope[0].count(s) || functions.count(s)){
+    cerr << "Symbol " << s << " at line " << lineNumber;
     cerr << " already exists\n";
     exit(EXIT_FAILURE);
   }
-  scope[0][t->lexeme] = t->type;
+  scope[0][s] = tt;
 }
 void SAVisitor::removeScope(){
   scope.erase(scope.begin());
@@ -35,34 +35,38 @@ void *SAVisitor::visit(ASTNodeType *n){
   switch(n->token->type){
     case TYPE_FLOAT:
       *tt = FLOAT;
+    break;
     case TYPE_INT:
       *tt = INT;
+    break;
     case TYPE_BOOL:
       *tt = BOOL;
+    break;
     default:
+    break;
   }
+  lineNumber = n->token->lineNumber;
   return (TokenType*)tt;
 }
 void *SAVisitor::visit(ASTNodeLiteral *n){
+  lineNumber = n->token->lineNumber;
   return (TokenType*)&n->token->type;
 }
 void *SAVisitor::visit(ASTNodeIdentifier *n){
-  TokenType *tt = lookup(n->token->lexeme);
-  if(tt == nullptr) {
-    cerr << "Could not find symbol " << n->token->lexeme;
-    cerr << " at line number " << n->token->lineNumber << "\n";
-    exit(EXIT_FAILURE);
-  }
-  return (Token*)&n->token;
+  lineNumber = n->token->lineNumber;
+  return 0;
 }
 void *SAVisitor::visit(ASTNodeMultiplicativeOp *n){
-  return (Token*)&n->token;
+  lineNumber = n->token->lineNumber;
+  return (TokenType*)&n->token->type;
 }
 void *SAVisitor::visit(ASTNodeAdditiveOp *n){
-  return (Token*)&n->token;
+  lineNumber = n->token->lineNumber;
+  return (TokenType*)&n->token->type;
 }
 void *SAVisitor::visit(ASTNodeRelationalOp *n){
-  return (Token*)&n->token;
+  lineNumber = n->token->lineNumber;
+  return (TokenType*)&n->token->type;
 }
 void *SAVisitor::visit(ASTNodeActualParams *n){
   vector<TokenType*> *types = new vector<TokenType*>();
@@ -73,28 +77,29 @@ void *SAVisitor::visit(ASTNodeActualParams *n){
 }
 void *SAVisitor::visit(ASTNodeFunctionCall *n){
   // if function not found in functions table
-  Token* identifier = ((Token*)visit(n->identifier));
-  if(! functions.count( identifier->lexeme )){
-    cerr << identifier->lexeme << " at line number ";
-    cerr << identifier->lineNumber << " is not a function." << "\n";
+  string fname = *(string*)n->identifier->accept(this);
+  if(! functions.count( fname )){
+    cerr << fname << " at line number ";
+    cerr << lineNumber << " is not a function." << "\n";
     exit(EXIT_FAILURE);
   }
   if(n->actualParams != NULL){
     vector<TokenType> *vtt = (vector<TokenType>*)n->actualParams->accept(this);
 
-    if(! vectors_equal(*vtt, functions.find(identifier->lexeme)->second)){
-      cerr << "Invalid parameters for function " << identifier->lexeme;
-      cerr << " at line number " << identifier->lineNumber << "\n";
+    if(! vectors_equal(*vtt, functions.find(fname)->second)){
+      cerr << "Invalid parameters for function " << fname;
+      cerr << " at line number " << fname << "\n";
       exit(EXIT_FAILURE);
     }
   }
-  return (TokenType*)&identifier->type;
+  return (TokenType*)lookup(fname);
 }
 void *SAVisitor::visit(ASTNodeSubExpression *n){
   return (TokenType*)n->expression->accept(this);
 }
 void *SAVisitor::visit(ASTNodeUnary *n){
   TokenType *tt = (TokenType*)n->expression->accept(this);
+  lineNumber = n->token->type;
 
   switch(*tt){
     case INT:
@@ -122,22 +127,171 @@ void *SAVisitor::visit(ASTNodeUnary *n){
   return (TokenType*)tt;
 }
 void *SAVisitor::visit(ASTNodeFactor *n){
-  return (TokenType*)n->accept(this);
+  return (TokenType*)n->node->accept(this);
 }
 void *SAVisitor::visit(ASTNodeTerm *n){
-  
+  // first factor is taken as reference
+  TokenType *refType = (TokenType*)n->factors[0]->accept(this);
+
+  for(unsigned int i = 0; i < n->multiplicativeOP.size(); ++i){
+    TokenType multT = *(TokenType*)n->multiplicativeOP[i]->accept(this);
+    // new type
+    TokenType *newT = (TokenType*)n->factors[i+1]->accept(this);
+    switch(multT){
+      case TIMES:
+      case DIVISION:
+        if(*refType == BOOL || *newT == BOOL){
+          cerr << "Type mismatch for operator" << Token::TokenString[multT];
+          cerr << " at line " << lineNumber << "\n";
+          exit(EXIT_FAILURE);
+        }
+
+        if(*refType == FLOAT || *newT == FLOAT) {
+          *refType = FLOAT;
+        }
+        // else leave reftype as int, if both are integers
+      break;
+      case AND:
+        if(*refType != BOOL || *newT != BOOL){ // both must be BOOL
+          cerr << "Type mismatch for operator" << Token::TokenString[multT];
+          cerr << " at line " << lineNumber << "\n";
+          exit(EXIT_FAILURE);
+        }
+        // else leve reftype as bool
+      break;
+      default:
+      break;
+    }
+  }
+
+  return (TokenType*) refType;
 }
-void *SAVisitor::visit(ASTNodeSimpleExpression *n){}
-void *SAVisitor::visit(ASTNodeExpression *n){}
-void *SAVisitor::visit(ASTNodeAssignment *n){}
-void *SAVisitor::visit(ASTNodeVariableDecl *n){}
-void *SAVisitor::visit(ASTNodePrintStatement *n){}
-void *SAVisitor::visit(ASTNodeReturnStatement *n){}
-void *SAVisitor::visit(ASTNodeIfStatement *n){}
+void *SAVisitor::visit(ASTNodeSimpleExpression *n){
+  // first factor is taken as reference
+  TokenType *refType = (TokenType*)n->terms[0]->accept(this);
+
+  for(unsigned int i = 0; i < n->additiveOP.size(); ++i){
+    TokenType addT = *(TokenType*)n->additiveOP[i]->accept(this);
+    // new type
+    TokenType *newT = (TokenType*)n->terms[i+1]->accept(this);
+    switch(addT){
+      case PLUS:
+      case MINUS:
+        if(*refType == BOOL || *newT == BOOL){
+          cerr << "Type mismatch for operator" << Token::TokenString[addT];
+          cerr << " at line " << lineNumber << "\n";
+          exit(EXIT_FAILURE);
+        }
+
+        if(*refType == FLOAT || *newT == FLOAT) {
+          *refType = FLOAT;
+        }
+        // else leave reftype as int, if both are integers
+      break;
+      case OR:
+        if(*refType != BOOL || *newT != BOOL){ // both must be BOOL
+          cerr << "Type mismatch for operator" << Token::TokenString[addT];
+          cerr << " at line " << lineNumber << "\n";
+          exit(EXIT_FAILURE);
+        }
+        // else leve reftype as bool
+      break;
+      default:
+      break;
+    }
+  }
+
+  return (TokenType*) refType;
+}
+void *SAVisitor::visit(ASTNodeExpression *n){
+  // first factor is taken as reference
+  TokenType *refType = (TokenType*)n->simpleExpressions[0]->accept(this);
+
+  // if there is a relop, then expression must be boolean
+  for(unsigned int i = 0; i < n->relationalOp.size(); ++i){
+    n->relationalOp[i]->accept(this); // just to set new line number
+    // new type
+    TokenType *newT = (TokenType*)n->simpleExpressions[i+1]->accept(this);
+    if(*refType != BOOL || *newT != BOOL){
+      cerr << "Type mismatch at line " << lineNumber << "\n";
+      exit(EXIT_FAILURE);
+    }
+  }
+
+  return (TokenType*) refType;
+}
+void *SAVisitor::visit(ASTNodeAssignment *n){
+  string name = *(string*)n->identifier->accept(this);
+
+  if(functions.count(name)){ // if trying to assign a function
+    cerr << name << " at line " << lineNumber;
+    cerr << " already defined as  function";
+    exit(EXIT_FAILURE);
+  }
+
+  if(*lookup(name) != *(TokenType*)n->expression->accept(this)){
+    cerr << "Type mismatch at line " << lineNumber << "\n";
+    exit(EXIT_FAILURE);
+  }
+  return 0;
+}
+void *SAVisitor::visit(ASTNodeVariableDecl *n){
+  TokenType type = *(TokenType*)n->type->accept(this);
+  string name = *(string*)n->identifier->accept(this);
+  insert( name , type );
+
+  if(type != *(TokenType*)n->expression->accept(this)){
+    cerr << "Type mismatch at line " << lineNumber << "\n";
+    exit(EXIT_FAILURE);
+  }
+  return 0;
+}
+void *SAVisitor::visit(ASTNodePrintStatement *n){
+  n->expression->accept(this);
+  return 0;
+}
+void *SAVisitor::visit(ASTNodeReturnStatement *n){
+  TokenType tt = *(TokenType*)n->expression->accept(this);
+
+  if(currentFunctionType != tt){
+    cerr << "Bad return type at line " << lineNumber << "\n";
+    exit(EXIT_FAILURE);
+  }
+  return 0;
+}
+void *SAVisitor::visit(ASTNodeIfStatement *n){
+  TokenType tt = *(TokenType*)n->expression->accept(this);
+  
+  // expression must be true or false
+  if(tt != BOOL){
+    cerr << "Condition must be true or false at line " << lineNumber << "\n";
+    exit(EXIT_FAILURE);
+  }
+
+  n->block->accept(this);
+
+  if(n->elseBlock) n->block->accept(this);
+
+  return 0;
+}
 void *SAVisitor::visit(ASTNodeForStatement *n){}
 void *SAVisitor::visit(ASTNodeFormalParam *n){}
 void *SAVisitor::visit(ASTNodeFormalParams *n){}
 void *SAVisitor::visit(ASTNodeFunctionDecl *n){}
-void *SAVisitor::visit(ASTNodeStatement *n){}
-void *SAVisitor::visit(ASTNodeBlock *n){}
-void *SAVisitor::visit(ASTNodeProgram *n){}
+void *SAVisitor::visit(ASTNodeStatement *n){
+  n->statement->accept(this);
+}
+void *SAVisitor::visit(ASTNodeBlock *n){
+  newScope();
+  for(unsigned int i = 0; i < n->statements.size(); ++i){
+    n->statements[i]->accept(this);
+  }
+  removeScope();
+}
+void *SAVisitor::visit(ASTNodeProgram *n){
+  newScope();
+  for(unsigned int i = 0; i < n->statements.size(); ++i){
+    n->statements[i]->accept(this);
+  }
+  removeScope();
+}
