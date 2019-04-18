@@ -69,12 +69,12 @@ The parser takes the tokens and puts them into a parse tree based on the grammar
 	\item FunctionDecl
 		\subitem \ul{FN} (Identifier) \ul{OPEN\un BRACKET} [ (FormalParams) ] \ul{CLOSED\un BRACKET} \ul{COLON} (Type) (Block)
 	\item Statement
-		\subitem (VariableDecl)
-		\subitem (Assignment)
-		\subitem (PrintStatement)
+		\subitem (VariableDecl) \ul{SEMI\un COLON}
+		\subitem (Assignment) \ul{SEMI\un COLON}
+		\subitem (PrintStatement) \ul{SEMI\un COLON}
 		\subitem (IfStatement)
 		\subitem (ForStatement)
-		\subitem (ReturnStatement)
+		\subitem (ReturnStatement) \ul{SEMI\un COLON}
 		\subitem (FunctionDecl)
 		\subitem (Block)
 	\item Block

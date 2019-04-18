@@ -28,16 +28,18 @@ Next, the visit classes are discussed. Each one of these, although described as 
 		\subitem returns the type of its identifier obtained from the symbol table. Error if it is not found
 	\item MultiplicativeOp : Operator Token (ex. TIMES, AND)
 		\subitem returns the operator itself, so that the expression node it belongs to can check that the operator supports the types it is operating upon. (Ex. "7*8" is valid, but "7 and 8" is not)
-	\item RelationalOp : Operator Token (ex. PLUS, OR)
-		\subitem very similar to MultiplicativeOp but with different operators.
+	\item MultiplicativeOp : Operator Token (ex. PLUS, OR)
+		\subitem very similar to MultiplicativeOp but with different operators
+	\item RelationalOp : Operator Token (ex. EQQ, ST)
+		\subitem very similar to MultiplicativeOp but with different operators
 	\item ActualParams : Vector of Type
 		\subitem iterates through all the parameters and returns a vector of all their types, so they can be matched with the formal parameters by the FunctionDecl node.
 	\item FunctionCall : Void
-		\subitem validates the function exists in the current scope 
+		\subitem validates the function exists
 		\subitem validates the parameters provided are of the required type
 		\subitem If any of these are false, the required errors are reported and program exits
 	\item SubExpression : Type
-		\item returns the type of the expression it has
+		\subitem returns the type of the expression it has
 	\item Unary : Type
 		\subitem validates that the unary operator is applied on the proper type and returns the type of the expression
 	\item Factor : Type
@@ -77,6 +79,7 @@ Next, the visit classes are discussed. Each one of these, although described as 
 		\subitem start new scope
 		\subitem add function to the functionParams map after validating the FormalParams(Note: they are added in the scope within their own methods)
 		\subitem set the currentFunctionType to the type of the function so ReturnStatement can know
+		Add function to symbol table after validating size of symbol table is one (outer scope)
 		\subitem validate the Block
 	\item Statement : void
 		\subitem validate the statement
