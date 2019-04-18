@@ -42,65 +42,67 @@ class Visitor{
   public:
     Visitor(){};
     virtual ~Visitor(){};
-    virtual void visit(ASTNode*) = 0;
-    virtual void visit(ASTNodeType*){};
-    virtual void visit(ASTNodeLiteral*){};
-    virtual void visit(ASTNodeIdentifier*){};
-    virtual void visit(ASTNodeMultiplicativeOp*){};
-    virtual void visit(ASTNodeAdditiveOp*){};
-    virtual void visit(ASTNodeRelationalOp*){};
-    virtual void visit(ASTNodeActualParams*){};
-    virtual void visit(ASTNodeFunctionCall*){};
-    virtual void visit(ASTNodeSubExpression*){};
-    virtual void visit(ASTNodeUnary*){};
-    virtual void visit(ASTNodeFactor*){};
-    virtual void visit(ASTNodeTerm*){};
-    virtual void visit(ASTNodeSimpleExpression*){};
-    virtual void visit(ASTNodeExpression*){};
-    virtual void visit(ASTNodeAssignment*){};
-    virtual void visit(ASTNodeVariableDecl*){};
-    virtual void visit(ASTNodeReturnStatement*){};
-    virtual void visit(ASTNodeIfStatement*){};
-    virtual void visit(ASTNodeForStatement*){};
-    virtual void visit(ASTNodeFormalParam*){};
-    virtual void visit(ASTNodeFormalParams*){};
-    virtual void visit(ASTNodeFunctionDecl*){};
-    virtual void visit(ASTNodeStatement*){};
-    virtual void visit(ASTNodeBlock*){};
-    virtual void visit(ASTNodeProgram*){};
+    virtual void *visit(ASTNode*) = 0;
+    virtual void *visit(ASTNodeType*) = 0;
+    virtual void *visit(ASTNodeLiteral*) = 0;
+    virtual void *visit(ASTNodeIdentifier*) = 0;
+    virtual void *visit(ASTNodeMultiplicativeOp*) = 0;
+    virtual void *visit(ASTNodeAdditiveOp*) = 0;
+    virtual void *visit(ASTNodeRelationalOp*) = 0;
+    virtual void *visit(ASTNodeActualParams*) = 0;
+    virtual void *visit(ASTNodeFunctionCall*) = 0;
+    virtual void *visit(ASTNodeSubExpression*) = 0;
+    virtual void *visit(ASTNodeUnary*) = 0;
+    virtual void *visit(ASTNodeFactor*) = 0;
+    virtual void *visit(ASTNodeTerm*) = 0;
+    virtual void *visit(ASTNodeSimpleExpression*) = 0;
+    virtual void *visit(ASTNodeExpression*) = 0;
+    virtual void *visit(ASTNodeAssignment*) = 0;
+    virtual void *visit(ASTNodeVariableDecl*) = 0;
+    virtual void *visit(ASTNodeReturnStatement*) = 0;
+    virtual void *visit(ASTNodeIfStatement*) = 0;
+    virtual void *visit(ASTNodeForStatement*) = 0;
+    virtual void *visit(ASTNodeFormalParam*) = 0;
+    virtual void *visit(ASTNodeFormalParams*) = 0;
+    virtual void *visit(ASTNodeFunctionDecl*) = 0;
+    virtual void *visit(ASTNodeStatement*) = 0;
+    virtual void *visit(ASTNodeBlock*) = 0;
+    virtual void *visit(ASTNodeProgram*) = 0;
 };
 
+// clss for the XML visitor
 class XMLVisitor : virtual public Visitor{
   public:
     XMLVisitor(){};
     virtual ~XMLVisitor(){};
-    virtual void visit(ASTNode*){};
-    virtual void visit(ASTNodeType *n);
-    virtual void visit(ASTNodeLiteral *n);
-    virtual void visit(ASTNodeIdentifier *n);
-    virtual void visit(ASTNodeMultiplicativeOp *n);
-    virtual void visit(ASTNodeAdditiveOp *n);
-    virtual void visit(ASTNodeRelationalOp *n);
-    virtual void visit(ASTNodeActualParams *n);
-    virtual void visit(ASTNodeFunctionCall *n);
-    virtual void visit(ASTNodeSubExpression *n);
-    virtual void visit(ASTNodeUnary *n);
-    virtual void visit(ASTNodeFactor *n);
-    virtual void visit(ASTNodeTerm *n);
-    virtual void visit(ASTNodeSimpleExpression *n);
-    virtual void visit(ASTNodeExpression *n);
-    virtual void visit(ASTNodeAssignment *n);
-    virtual void visit(ASTNodeVariableDecl *n);
-    virtual void visit(ASTNodeReturnStatement *n);
-    virtual void visit(ASTNodeIfStatement *n);
-    virtual void visit(ASTNodeForStatement *n);
-    virtual void visit(ASTNodeFormalParam *n);
-    virtual void visit(ASTNodeFormalParams *n);
-    virtual void visit(ASTNodeFunctionDecl *n);
-    virtual void visit(ASTNodeStatement *n);
-    virtual void visit(ASTNodeBlock *n);
-    virtual void visit(ASTNodeProgram *n);
-    void trimXMLNewLines(); // remove empty lines from xml
+    // All these return null since all is needed is to update the XML string
+    virtual void *visit(ASTNode*){ return 0; };
+    virtual void *visit(ASTNodeType *n);
+    virtual void *visit(ASTNodeLiteral *n);
+    virtual void *visit(ASTNodeIdentifier *n);
+    virtual void *visit(ASTNodeMultiplicativeOp *n);
+    virtual void *visit(ASTNodeAdditiveOp *n);
+    virtual void *visit(ASTNodeRelationalOp *n);
+    virtual void *visit(ASTNodeActualParams *n);
+    virtual void *visit(ASTNodeFunctionCall *n);
+    virtual void *visit(ASTNodeSubExpression *n);
+    virtual void *visit(ASTNodeUnary *n);
+    virtual void *visit(ASTNodeFactor *n);
+    virtual void *visit(ASTNodeTerm *n);
+    virtual void *visit(ASTNodeSimpleExpression *n);
+    virtual void *visit(ASTNodeExpression *n);
+    virtual void *visit(ASTNodeAssignment *n);
+    virtual void *visit(ASTNodeVariableDecl *n);
+    virtual void *visit(ASTNodeReturnStatement *n);
+    virtual void *visit(ASTNodeIfStatement *n);
+    virtual void *visit(ASTNodeForStatement *n);
+    virtual void *visit(ASTNodeFormalParam *n);
+    virtual void *visit(ASTNodeFormalParams *n);
+    virtual void *visit(ASTNodeFunctionDecl *n);
+    virtual void *visit(ASTNodeStatement *n);
+    virtual void *visit(ASTNodeBlock *n);
+    virtual void *visit(ASTNodeProgram *n);
+    void *trimXMLNewLines(); // remove empty lines from xml
     string getXML(){ return xml.str(); }
   private:
     stringstream xml;
@@ -113,37 +115,37 @@ class SAVisitor : virtual public Visitor{
   public:
     SAVisitor(){};
     virtual ~SAVisitor(){};
-    virtual void visit(ASTNode*){};
-    virtual void visit(ASTNodeType *n);
-    virtual void visit(ASTNodeLiteral *n);
-    virtual void visit(ASTNodeIdentifier *n);
-    virtual void visit(ASTNodeMultiplicativeOp *n);
-    virtual void visit(ASTNodeAdditiveOp *n);
-    virtual void visit(ASTNodeRelationalOp *n);
-    virtual void visit(ASTNodeActualParams *n);
-    virtual void visit(ASTNodeFunctionCall *n);
-    virtual void visit(ASTNodeSubExpression *n);
-    virtual void visit(ASTNodeUnary *n);
-    virtual void visit(ASTNodeFactor *n);
-    virtual void visit(ASTNodeTerm *n);
-    virtual void visit(ASTNodeSimpleExpression *n);
-    virtual void visit(ASTNodeExpression *n);
-    virtual void visit(ASTNodeAssignment *n);
-    virtual void visit(ASTNodeVariableDecl *n);
-    virtual void visit(ASTNodeReturnStatement *n);
-    virtual void visit(ASTNodeIfStatement *n);
-    virtual void visit(ASTNodeForStatement *n);
-    virtual void visit(ASTNodeFormalParam *n);
-    virtual void visit(ASTNodeFormalParams *n);
-    virtual void visit(ASTNodeFunctionDecl *n);
-    virtual void visit(ASTNodeStatement *n);
-    virtual void visit(ASTNodeBlock *n);
-    virtual void visit(ASTNodeProgram *n);
+    virtual void *visit(ASTNode*){ return 0; };
+    virtual void *visit(ASTNodeType *n);
+    virtual void *visit(ASTNodeLiteral *n);
+    virtual void *visit(ASTNodeIdentifier *n);
+    virtual void *visit(ASTNodeMultiplicativeOp *n);
+    virtual void *visit(ASTNodeAdditiveOp *n);
+    virtual void *visit(ASTNodeRelationalOp *n);
+    virtual void *visit(ASTNodeActualParams *n);
+    virtual void *visit(ASTNodeFunctionCall *n);
+    virtual void *visit(ASTNodeSubExpression *n);
+    virtual void *visit(ASTNodeUnary *n);
+    virtual void *visit(ASTNodeFactor *n);
+    virtual void *visit(ASTNodeTerm *n);
+    virtual void *visit(ASTNodeSimpleExpression *n);
+    virtual void *visit(ASTNodeExpression *n);
+    virtual void *visit(ASTNodeAssignment *n);
+    virtual void *visit(ASTNodeVariableDecl *n);
+    virtual void *visit(ASTNodeReturnStatement *n);
+    virtual void *visit(ASTNodeIfStatement *n);
+    virtual void *visit(ASTNodeForStatement *n);
+    virtual void *visit(ASTNodeFormalParam *n);
+    virtual void *visit(ASTNodeFormalParams *n);
+    virtual void *visit(ASTNodeFunctionDecl *n);
+    virtual void *visit(ASTNodeStatement *n);
+    virtual void *visit(ASTNodeBlock *n);
+    virtual void *visit(ASTNodeProgram *n);
   private:
     vector<map<string, TokenType>> scope = vector<map<string, TokenType>>();
-    void newScope(); // add scope as the 0 index of the vector
-    void insert(string, TokenType); // in current scope
-    void removeScope(); // remove scope at position 0
+    void *newScope(); // add scope as the 0 index of the vector
+    void *insert(string, TokenType); // in current scope
+    void *removeScope(); // remove scope at position 0
     TokenType lookup(string); // lookup starting from vector 0 and going down
 };
 

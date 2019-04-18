@@ -3,39 +3,39 @@
 
 The visitor design pattern is used for the XML generator. Each ASTNode accepts the visitor class's \textit{visit} function through the \textit{accept} function.
 
-An XMLVisitor class was created. This contains a string stream called \textit{xml} which will contain the generated string after the tree is all visited. The \textit{numberOfTabs} integer holds the number of indentation number which should be applied at each line.
+An XMLVisitor class was created. This contains a string stream called \textit{xml} which will contain the generated string after the tree is all visited. The \textit{numberOfTabs} integer holds the number of indentation number which should be applied at each line. Note: The visit methods are of type \textit{void*} in order to cater for further visitors. For this visitor however, they all return NULL, or rather, 0.
 
 \begin{lstlisting}[language=C++]
 class XMLVisitor : virtual public Visitor{
 	public:
 		XMLVisitor(){};
 		virtual ~XMLVisitor(){};
-		virtual void visit(ASTNode*){};
-		virtual void visit(ASTNodeType *n);
-		virtual void visit(ASTNodeLiteral *n);
-		virtual void visit(ASTNodeIdentifier *n);
-		virtual void visit(ASTNodeMultiplicativeOp *n);
-		virtual void visit(ASTNodeAdditiveOp *n);
-		virtual void visit(ASTNodeRelationalOp *n);
-		virtual void visit(ASTNodeActualParams *n);
-		virtual void visit(ASTNodeFunctionCall *n);
-		virtual void visit(ASTNodeSubExpression *n);
-		virtual void visit(ASTNodeUnary *n);
-		virtual void visit(ASTNodeFactor *n);
-		virtual void visit(ASTNodeTerm *n);
-		virtual void visit(ASTNodeSimpleExpression *n);
-		virtual void visit(ASTNodeExpression *n);
-		virtual void visit(ASTNodeAssignment *n);
-		virtual void visit(ASTNodeVariableDecl *n);
-		virtual void visit(ASTNodeReturnStatement *n);
-		virtual void visit(ASTNodeIfStatement *n);
-		virtual void visit(ASTNodeForStatement *n);
-		virtual void visit(ASTNodeFormalParam *n);
-		virtual void visit(ASTNodeFormalParams *n);
-		virtual void visit(ASTNodeFunctionDecl *n);
-		virtual void visit(ASTNodeStatement *n);
-		virtual void visit(ASTNodeBlock *n);
-		virtual void visit(ASTNodeProgram *n);
+		virtual void *visit(ASTNode*){};
+		virtual void *visit(ASTNodeType *n);
+		virtual void *visit(ASTNodeLiteral *n);
+		virtual void *visit(ASTNodeIdentifier *n);
+		virtual void *visit(ASTNodeMultiplicativeOp *n);
+		virtual void *visit(ASTNodeAdditiveOp *n);
+		virtual void *visit(ASTNodeRelationalOp *n);
+		virtual void *visit(ASTNodeActualParams *n);
+		virtual void *visit(ASTNodeFunctionCall *n);
+		virtual void *visit(ASTNodeSubExpression *n);
+		virtual void *visit(ASTNodeUnary *n);
+		virtual void *visit(ASTNodeFactor *n);
+		virtual void *visit(ASTNodeTerm *n);
+		virtual void *visit(ASTNodeSimpleExpression *n);
+		virtual void *visit(ASTNodeExpression *n);
+		virtual void *visit(ASTNodeAssignment *n);
+		virtual void *visit(ASTNodeVariableDecl *n);
+		virtual void *visit(ASTNodeReturnStatement *n);
+		virtual void *visit(ASTNodeIfStatement *n);
+		virtual void *visit(ASTNodeForStatement *n);
+		virtual void *visit(ASTNodeFormalParam *n);
+		virtual void *visit(ASTNodeFormalParams *n);
+		virtual void *visit(ASTNodeFunctionDecl *n);
+		virtual void *visit(ASTNodeStatement *n);
+		virtual void *visit(ASTNodeBlock *n);
+		virtual void *visit(ASTNodeProgram *n);
 		void trimXMLNewLines(); // remove empty lines from xml
 		string getXML(){ return xml.str(); }
 	private:
@@ -47,7 +47,7 @@ class XMLVisitor : virtual public Visitor{
 
 An XML visit for a leaf node accept would look something like this:
 \begin{lstlisting}[language=C++]
-void XMLVisitor::visit(ASTNodeMultiplicativeOp *n){
+void *XMLVisitor::visit(ASTNodeMultiplicativeOp *n){
 	xml << "OP=\"" << n->token->lexeme << "\"";
 }
 \end{lstlisting}
@@ -56,7 +56,7 @@ The above is for a multiplicative operator. So '*' would be shown as 'OP="*"'.
 This is also a recursive method, so the program node (which contains a list of statements), iteratively goes trough the statements and calls the accept statement for the visitor on them as well, creating recursion.
 
 \begin{lstlisting}[language=C++]
-void XMLVisitor::visit(ASTNodeProgram *n){
+void *XMLVisitor::visit(ASTNodeProgram *n){
 	for(int i = 0; i < n->statements.size(); ++i){
 		n->statements.at(i)->accept(this);
 	}

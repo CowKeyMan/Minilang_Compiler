@@ -14,7 +14,7 @@ class ASTNode{
     ASTNode(TokenManager *_tokenManager){ tokenManager = _tokenManager; };
     virtual ~ASTNode(){};
     virtual bool parse() = 0; // returns true if parse was successful
-    virtual void accept(Visitor *v);
+    virtual void *accept(Visitor *v);
   protected:
     TokenManager *tokenManager;
     Token *match(TokenType tokenType); // match a TokenType, make sure it exists
@@ -26,7 +26,7 @@ class ASTNodeType : virtual public ASTNode{
     ASTNodeType(TokenManager *tokenManager) : ASTNode(tokenManager) {};
     virtual ~ASTNodeType(){};
     virtual bool parse(); // returns true if parse was successful
-    virtual void accept(Visitor *v);
+    virtual void *accept(Visitor *v);
 
     Token* token; 
 };
@@ -37,7 +37,7 @@ class ASTNodeLiteral : virtual public ASTNode{
     ASTNodeLiteral(TokenManager *tokenManager) : ASTNode(tokenManager) {};
     virtual ~ASTNodeLiteral(){};
     virtual bool parse(); // returns true if parse was successful
-    virtual void accept(Visitor *v);
+    virtual void *accept(Visitor *v);
 
     Token* token;
 };
@@ -48,7 +48,7 @@ class ASTNodeIdentifier : virtual public ASTNode{
     ASTNodeIdentifier(TokenManager *tokenManager) : ASTNode(tokenManager) {};
     virtual ~ASTNodeIdentifier(){};
     virtual bool parse(); // returns true if parse was successful
-    virtual void accept(Visitor *v);
+    virtual void *accept(Visitor *v);
 
     Token* token;
 };
@@ -59,7 +59,7 @@ class ASTNodeMultiplicativeOp : virtual public ASTNode{
     ASTNodeMultiplicativeOp(TokenManager *tokenManager) : ASTNode(tokenManager) {};
     virtual ~ASTNodeMultiplicativeOp(){};
     virtual bool parse(); // returns true if parse was successful
-    virtual void accept(Visitor *v);
+    virtual void *accept(Visitor *v);
 
     Token* token;
 };
@@ -70,7 +70,7 @@ class ASTNodeAdditiveOp : virtual public ASTNode{
     ASTNodeAdditiveOp (TokenManager *tokenManager) : ASTNode(tokenManager) {};
     virtual ~ASTNodeAdditiveOp (){};
     virtual bool parse(); // returns true if parse was successful
-    virtual void accept(Visitor *v);
+    virtual void *accept(Visitor *v);
 
     Token* token; // statement node
 };
@@ -81,7 +81,7 @@ class ASTNodeRelationalOp : virtual public ASTNode{
     ASTNodeRelationalOp (TokenManager *tokenManager) : ASTNode(tokenManager) {};
     virtual ~ASTNodeRelationalOp(){};
     virtual bool parse(); // returns true if parse was successful
-    virtual void accept(Visitor *v);
+    virtual void *accept(Visitor *v);
 
     Token* token;
 };
@@ -92,7 +92,7 @@ class ASTNodeActualParams : virtual public ASTNode{
     ASTNodeActualParams (TokenManager *tokenManager) : ASTNode(tokenManager) {};
     virtual ~ASTNodeActualParams(){};
     virtual bool parse(); // returns true if parse was successful
-    virtual void accept(Visitor *v);
+    virtual void *accept(Visitor *v);
 
     vector<ASTNode*> expressions;
 };
@@ -103,7 +103,7 @@ class ASTNodeFunctionCall : virtual public ASTNode{
     ASTNodeFunctionCall (TokenManager *tokenManager) : ASTNode(tokenManager) {};
     virtual ~ASTNodeFunctionCall();
     virtual bool parse(); // returns true if parse was successful
-    virtual void accept(Visitor *v);
+    virtual void *accept(Visitor *v);
 
     ASTNode* identifier;
     ASTNode* actualParams = NULL;
@@ -115,7 +115,7 @@ class ASTNodeSubExpression : virtual public ASTNode{
     ASTNodeSubExpression (TokenManager *tokenManager) : ASTNode(tokenManager) {};
     virtual ~ASTNodeSubExpression();
     virtual bool parse(); // returns true if parse was successful
-    virtual void accept(Visitor *v);
+    virtual void *accept(Visitor *v);
 
     ASTNode* expression;
 };
@@ -126,7 +126,7 @@ class ASTNodeUnary: virtual public ASTNode{
     ASTNodeUnary (TokenManager *tokenManager) : ASTNode(tokenManager) {};
     virtual ~ASTNodeUnary();
     virtual bool parse(); // returns true if parse was successful
-    virtual void accept(Visitor *v);
+    virtual void *accept(Visitor *v);
 
     Token* token;
     ASTNode* expression;
@@ -138,7 +138,7 @@ class ASTNodeFactor: virtual public ASTNode{
     ASTNodeFactor(TokenManager *tokenManager) : ASTNode(tokenManager) {};
     virtual ~ASTNodeFactor();
     virtual bool parse(); // returns true if parse was successful
-    virtual void accept(Visitor *v);
+    virtual void *accept(Visitor *v);
 
     ASTNode* node;
 };
@@ -149,7 +149,7 @@ class ASTNodeTerm: virtual public ASTNode{
     ASTNodeTerm(TokenManager *tokenManager) : ASTNode(tokenManager) {};
     virtual ~ASTNodeTerm();
     virtual bool parse(); // returns true if parse was successful
-    virtual void accept(Visitor *v);
+    virtual void *accept(Visitor *v);
 
     vector<ASTNode*> factors;
     vector<ASTNode*> multiplicativeOP;
@@ -161,7 +161,7 @@ class ASTNodeSimpleExpression: virtual public ASTNode{
     ASTNodeSimpleExpression(TokenManager *tokenManager) : ASTNode(tokenManager) {};
     virtual ~ASTNodeSimpleExpression();
     virtual bool parse(); // returns true if parse was successful
-    virtual void accept(Visitor *v);
+    virtual void *accept(Visitor *v);
 
     vector<ASTNode*> additiveOP;
     vector<ASTNode*> terms;
@@ -173,7 +173,7 @@ class ASTNodeExpression: virtual public ASTNode{
     ASTNodeExpression(TokenManager *tokenManager) : ASTNode(tokenManager) {};
     virtual ~ASTNodeExpression();
     virtual bool parse(); // returns true if parse was successful
-    virtual void accept(Visitor *v);
+    virtual void *accept(Visitor *v);
 
     vector<ASTNode*> relationalOp;
     vector<ASTNode*> simpleExpressions;
@@ -185,7 +185,7 @@ class ASTNodeAssignment: virtual public ASTNode{
     ASTNodeAssignment(TokenManager *tokenManager) : ASTNode(tokenManager) {};
     virtual ~ASTNodeAssignment();
     virtual bool parse(); // returns true if parse was successful
-    virtual void accept(Visitor *v);
+    virtual void *accept(Visitor *v);
 
     ASTNode *identifier;
     ASTNode *expression;
@@ -197,7 +197,7 @@ class ASTNodeVariableDecl : virtual public ASTNode{
     ASTNodeVariableDecl(TokenManager *tokenManager) : ASTNode(tokenManager) {};
     virtual ~ASTNodeVariableDecl();
     virtual bool parse(); // returns true if parse was successful
-    virtual void accept(Visitor *v);
+    virtual void *accept(Visitor *v);
 
     ASTNode* identifier;
     ASTNode* type;
@@ -210,7 +210,7 @@ class ASTNodeReturnStatement : virtual public ASTNode{
     ASTNodeReturnStatement(TokenManager *tokenManager) : ASTNode(tokenManager) {};
     virtual ~ASTNodeReturnStatement();
     virtual bool parse(); // returns true if parse was successful
-    virtual void accept(Visitor *v);
+    virtual void *accept(Visitor *v);
 
     ASTNode* expression;
 };
@@ -221,7 +221,7 @@ class ASTNodeIfStatement : virtual public ASTNode{
     ASTNodeIfStatement(TokenManager *tokenManager) : ASTNode(tokenManager) {};
     virtual ~ASTNodeIfStatement();
     virtual bool parse(); // returns true if parse was successful
-    virtual void accept(Visitor *v);
+    virtual void *accept(Visitor *v);
 
     ASTNode* expression;
     ASTNode* block;
@@ -234,7 +234,7 @@ class ASTNodeForStatement : virtual public ASTNode{
     ASTNodeForStatement(TokenManager *tokenManager) : ASTNode(tokenManager) {};
     virtual ~ASTNodeForStatement();
     virtual bool parse(); // returns true if parse was successful
-    virtual void accept(Visitor *v);
+    virtual void *accept(Visitor *v);
 
     ASTNode* variableDecl = NULL; // optional
     ASTNode* expression;
@@ -248,7 +248,7 @@ class ASTNodeFormalParam : virtual public ASTNode{
     ASTNodeFormalParam(TokenManager *tokenManager) : ASTNode(tokenManager) {};
     virtual ~ASTNodeFormalParam();
     virtual bool parse(); // returns true if parse was successful
-    virtual void accept(Visitor *v);
+    virtual void *accept(Visitor *v);
 
     ASTNode* identifier;
     ASTNode* type;
@@ -260,7 +260,7 @@ class ASTNodeFormalParams : virtual public ASTNode{
     ASTNodeFormalParams(TokenManager *tokenManager) : ASTNode(tokenManager) {};
     virtual ~ASTNodeFormalParams();
     virtual bool parse(); // returns true if parse was successful
-    virtual void accept(Visitor *v);
+    virtual void *accept(Visitor *v);
 
     vector<ASTNode*> formalParams;
 };
@@ -271,7 +271,7 @@ class ASTNodeFunctionDecl : virtual public ASTNode{
     ASTNodeFunctionDecl(TokenManager *tokenManager) : ASTNode(tokenManager) {};
     virtual ~ASTNodeFunctionDecl();
     virtual bool parse(); // returns true if parse was successful
-    virtual void accept(Visitor *v);
+    virtual void *accept(Visitor *v);
 
     ASTNode* identifier;
     ASTNode* formalParams = NULL;
@@ -285,7 +285,7 @@ class ASTNodeStatement : virtual public ASTNode{
     ASTNodeStatement(TokenManager *tokenManager) : ASTNode(tokenManager) {};
     virtual ~ASTNodeStatement(void);
     virtual bool parse(); // returns true if parse was successful
-    virtual void accept(Visitor *v);
+    virtual void *accept(Visitor *v);
 
     ASTNode* statement; // statement node
 };
@@ -296,7 +296,7 @@ class ASTNodeBlock : virtual public ASTNode{
     ASTNodeBlock(TokenManager *tokenManager) : ASTNode(tokenManager) {};
     virtual ~ASTNodeBlock();
     virtual bool parse(); // returns true if parse was successful
-    virtual void accept(Visitor *v);
+    virtual void *accept(Visitor *v);
 
     vector<ASTNode*> statements; // statement nodes (multiple)
 };
@@ -307,7 +307,7 @@ class ASTNodeProgram : virtual public ASTNode{
     ASTNodeProgram(TokenManager *tokenManager) : ASTNode(tokenManager) {};
     virtual ~ASTNodeProgram();
     virtual bool parse(); // returns true if parse was successful
-    virtual void accept(Visitor *v);
+    virtual void *accept(Visitor *v);
 
     vector<ASTNode*> statements; // statement nodes (multiple)
 };
