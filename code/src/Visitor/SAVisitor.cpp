@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "Visitor.h"
+#include "../Helper/Helper.h"
 
 using std::map;
 using std::cerr;
@@ -42,7 +43,7 @@ void *SAVisitor::visit(ASTNodeType *n){
   }
 }
 void *SAVisitor::visit(ASTNodeLiteral *n){
-  return (void*)n->token->type;
+  return &n->token->type;
 }
 void *SAVisitor::visit(ASTNodeIdentifier *n){
   TokenType *tt = lookup(n->token->lexeme);
@@ -51,16 +52,16 @@ void *SAVisitor::visit(ASTNodeIdentifier *n){
     cerr << " at line number " << n->token->lineNumber << "\n";
     exit(EXIT_FAILURE);
   }
-  return (void*)(n->token);
+  return &n->token;
 }
 void *SAVisitor::visit(ASTNodeMultiplicativeOp *n){
-  return (void*)n->token;
+  return &n->token;
 }
 void *SAVisitor::visit(ASTNodeAdditiveOp *n){
-  return (void*)n->token;
+  return &n->token;
 }
 void *SAVisitor::visit(ASTNodeRelationalOp *n){
-  return (void*)n->token;
+  return &n->token;
 }
 void *SAVisitor::visit(ASTNodeActualParams *n){
   vector<TokenType*> *types = new vector<TokenType*>();
@@ -73,16 +74,23 @@ void *SAVisitor::visit(ASTNodeFunctionCall *n){
   // if function not found in functions table
   Token* identifier = ((Token*)visit(n->identifier));
   if(! functions.count( identifier->lexeme )){
-    cerr << "Could not find function " << identifier->lexeme;
-    cerr << " at line number " << identifier->lineNumber << "\n";
+    cerr << identifier->lexeme << " at line number ";
+    cerr << identifier->lineNumber << " is not a function." << "\n";
     exit(EXIT_FAILURE);
   }
   if(n->actualParams != NULL){
-    vector<TokenType> *tt = (vector<TokenType>*)n->actualParams->accept(this);
+    vector<TokenType> *vtt = (vector<TokenType>*)n->actualParams->accept(this);
+
+    if(! vectors_equal(*vtt, functions.find(identifier->lexeme)->second)){
+      cerr << "Invalid parameters for function " << identifier->lexeme;
+      cerr << " at line number " << identifier->lineNumber << "\n";
+      exit(EXIT_FAILURE);
+    }
   }
+  return &identifier->type;
 }
 void *SAVisitor::visit(ASTNodeSubExpression *n){
-  return (TokenType*)n->expression->accept(this);
+  return n->expression->accept(this);
 }
 void *SAVisitor::visit(ASTNodeUnary *n){
   TokenType *tt = (TokenType*)n->expression->accept(this);
@@ -91,7 +99,7 @@ void *SAVisitor::visit(ASTNodeUnary *n){
     case INT:
     case FLOAT:
       // unary operator must be 'MINUS' if float or int, not 'NOT'
-      if(! n->token->type == MINUS){
+      if(! (n->token->type == MINUS)) {
         cerr << "Invalid unary operator " << n->token->lexeme;
         cerr << " at line number " << n->token->lineNumber;
         cerr << ". Expression must be of numeric type\n";
@@ -100,7 +108,7 @@ void *SAVisitor::visit(ASTNodeUnary *n){
     break;
     case BOOL:
       // unary operator must be 'MINUS' if float or int, not 'NOT'
-      if(! n->token->type == NOT){
+      if(! (n->token->type == NOT)){
         cerr << "Invalid unary operator " << n->token->lexeme;
         cerr << " at line number " << n->token->lineNumber;
         cerr << ". Expression must be of boolean type\n";
@@ -108,11 +116,12 @@ void *SAVisitor::visit(ASTNodeUnary *n){
       }
     break;
     default:
+    break;
   }
   return tt;
 }
 void *SAVisitor::visit(ASTNodeFactor *n){
-  
+  // return 
 }
 void *SAVisitor::visit(ASTNodeTerm *n){}
 void *SAVisitor::visit(ASTNodeSimpleExpression *n){}
