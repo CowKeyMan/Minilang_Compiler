@@ -315,6 +315,15 @@ void *SAVisitor::visit(ASTNodeReturnStatement *n){
     cerr << "Bad return type at line " << lineNumber << "\n";
     exit(EXIT_FAILURE);
   }
+
+  if(insideFunction && !insideFor){
+    if(ifsReturnIndex == -1){
+      goodReturn = true;
+    }else{
+      ifsReturn[ifsReturnIndex] = true;
+    }
+  }
+
   return 0;
 }
 void *SAVisitor::visit(ASTNodeIfStatement *n){
@@ -324,20 +333,51 @@ void *SAVisitor::visit(ASTNodeIfStatement *n){
     cerr << "Expression must be a condition at line " << lineNumber << "\n";
     exit(EXIT_FAILURE);
   }
+  if(!insideFor && insideFunction){
+    ifsReturn.insert(ifsReturn.begin(), false);
+    ifsReturnIndex++;
+  }
 
   newScope();
   n->block->accept(this);
   removeScope();
 
   if(n->elseBlock){
+    if(!insideFor && insideFunction){
+      ifsReturn.insert(ifsReturn.begin(), false);
+    }
+
     newScope();
-    n->block->accept(this);
+    n->elseBlock->accept(this);
     removeScope();
+
+    if(!insideFor && insideFunction){
+      if(ifsReturn[ifsReturnIndex] && ifsReturn[ifsReturnIndex+1]){
+        if(ifsReturn.size() > 2){
+          ifsReturn[ifsReturnIndex-1] = true;
+        }else{
+          goodReturn = true;
+        }
+      }
+
+      ifsReturn.erase(ifsReturn.begin() + ifsReturnIndex);
+      ifsReturn.erase(ifsReturn.end() + ifsReturnIndex);
+    }
+  }else{
+    if(!insideFor && insideFunction){
+      ifsReturn.erase(ifsReturn.begin() + ifsReturnIndex); // remove the for since it is now invalid
+    }
   }
+
+  if(!insideFor && insideFunction){
+    ifsReturnIndex--;
+  }
+
   return 0;
 }
 void *SAVisitor::visit(ASTNodeForStatement *n){
   newScope();
+  insideFor = true;
   if(n->variableDecl) n->variableDecl->accept(this);
 
   TokenType tt = *(TokenType*)n->expression->accept(this);
@@ -349,6 +389,7 @@ void *SAVisitor::visit(ASTNodeForStatement *n){
   if(n->assignment) n->assignment->accept(this);
 
   n->block->accept(this);
+  insideFor = false;
   removeScope();
 
   return 0;
@@ -372,16 +413,31 @@ void *SAVisitor::visit(ASTNodeFunctionDecl *n){
   TokenType *tt = (TokenType*)n->type->accept(this);
   insert(*name, *tt);
 
+  if(scope.size() > 1){
+    cerr << "Functions cannot be declared outside of main scope";
+    cerr << " at line " + lineNumber << "\n";
+    exit(EXIT_FAILURE);
+  }
+
   currentFunctionType = new TokenType(*tt);
   functions[*name] = vector<TokenType>();
+  insideFunction = true;
   newScope();
 
-  vector<TokenType> *vtt = (vector<TokenType>*)n->formalParams->accept(this);
-  functions[*name] = *vtt;
-
+  if(n->formalParams){
+    vector<TokenType> *vtt = (vector<TokenType>*)n->formalParams->accept(this);
+    functions[*name] = *vtt;
+  }
   n->block->accept(this);
 
   removeScope();
+  if(!goodReturn){
+    cerr << "Function " << *name << ": not all code paths return a value\n";
+    exit(EXIT_FAILURE);
+  }
+  goodReturn = false;
+  insideFunction = false;
+
   currentFunctionType = nullptr;
   return 0;
 }

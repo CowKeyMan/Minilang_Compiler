@@ -34,10 +34,10 @@ int main(){
   
   lexer = unique_ptr<Lexer>( new Lexer(*file) );
   lexer->lex();
+  lexer->removeComments();
 #ifdef TEST_LEXER
   lexer->printTokens(); // for debugging purposes
 #endif
-  lexer->removeComments();
   tokens = lexer->get_tokens();
   file.reset();
   lexer.reset(); // freeing pointer optimistions

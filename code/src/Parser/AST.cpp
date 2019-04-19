@@ -396,12 +396,14 @@ bool ASTNodeIfStatement::parse(){
   if (n2->parse() == false) return false;
   block = n2;
 
-  if(tokenManager->peekToken()->type == ELSE){
-    match(ELSE);
+  if(tokenManager->peekTokenUnsafe(0) != nullptr){
+    if(tokenManager->peekToken()->type == ELSE){
+      match(ELSE);
 
-    ASTNode *n3 = new ASTNodeBlock(tokenManager);
-    if (n3->parse() == false) return false;
-    elseBlock = n3;
+      ASTNode *n3 = new ASTNodeBlock(tokenManager);
+      if (n3->parse() == false) return false;
+      elseBlock = n3;
+    }
   }
 
   return true;

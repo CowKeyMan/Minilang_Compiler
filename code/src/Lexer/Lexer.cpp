@@ -27,7 +27,7 @@ void Lexer::lex(){
       fileIndex--; 
 
       // reduce line number or you get \n read twice
-      if(c == '\n'){
+      if(c == '\n' && state){
         lineNumber--;
       }
       
@@ -185,6 +185,7 @@ void Lexer::removeComments(){
   for(unsigned int i = 0 ; i < tokens.size(); ++i){
     if(tokens[i].type == COMMENT){
       tokens.erase(tokens.begin() + i);
+      i--;
     }
   }
 }

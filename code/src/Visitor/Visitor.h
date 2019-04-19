@@ -146,7 +146,8 @@ class SAVisitor : virtual public Visitor{
     virtual void *visit(ASTNodeStatement *n);
     virtual void *visit(ASTNodeBlock *n);
     virtual void *visit(ASTNodeProgram *n);
-  // private:
+    void printSymbolTable();
+  private:
     vector<map<string, TokenType>> scope;
     void newScope(); // add scope as the 0 index of the vector
     void insert(string, TokenType); // in current scope
@@ -157,7 +158,20 @@ class SAVisitor : virtual public Visitor{
     map <string, vector<TokenType> > functions; 
     TokenType *currentFunctionType = nullptr;
     int lineNumber = 0;
-    void printSymbolTable();
+
+    // Methods to help if function has a proper return statement in all paths
+    bool insideFor = false; // do nothing while inside for
+    bool insideFunction = false; // only applies if inside function
+    vector<bool> ifsReturn;
+    int ifsReturnIndex = -1;
+    bool goodReturn;
+
+    void printIf(){
+      for(unsigned int i = 0; i < ifsReturn.size(); ++i){
+        std::cout << ifsReturn[i] << " ";
+      }
+      std::cout << "\n";
+    }
 };
 
 #endif // VISITOR_H
