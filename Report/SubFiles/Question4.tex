@@ -116,6 +116,10 @@ The program is allowed to exit abruptly, hence why return statements can be acce
 A function declaration is checked to make sure \textbf{all code paths return a proper value}. This means that if a return exists in an if, but no corresponding return in an else or outside the if statement exists, the function is declared semantically incorrect. Returns in for loops are also not considered to be enough for a function to be valid for the semantic analyser. This was made possible trough the use of a stack and a few global variables, in conjunction with checks when returns are made inside of functions.
 \\\\
 Important to note is that function names cannot be overridden anywhere in the code.
+\\\\
+Functions can only be defined in the outer scope
+\\\\
+Functions are the first to be analysed so they can be used before they are defined, because in reality they will be defined.
 
 \subsection{Example Tests}
 
@@ -153,3 +157,5 @@ and the compiler complains:
 Function u at line number 1: not all code paths return a value
 \end{lstlisting}
 This could be remedied by uncommenting the comment.
+\\\\
+More items which are checked are correct type and amount of parameters to functions as well as that return statements are of the correct type when inside a function.

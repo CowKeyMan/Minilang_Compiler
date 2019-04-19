@@ -276,7 +276,7 @@ class ASTNodeFormalParams : virtual public ASTNode{
     vector<ASTNode*> formalParams;
 };
 
-class ASTNodeFunctionDecl : virtual public ASTNode{
+class ASTNodeFunctionDecl : public ASTNode{
   public:
     // costructor is same as parent
     ASTNodeFunctionDecl(TokenManager *tokenManager) : ASTNode(tokenManager) {};

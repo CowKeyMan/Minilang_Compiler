@@ -114,6 +114,7 @@ void *SAVisitor::visit(ASTNodeFunctionCall *n){
     cerr << " at line number " << lineNumber << "\n";
     exit(EXIT_FAILURE);
   }
+  if(reqd.size() == 0 && !n->actualParams) return (TokenType*)lookup(*fname);
   vector<TokenType*> vtt = *(vector<TokenType*>*)n->actualParams->accept(this);
   if(vtt.size() != reqd.size()){
     cerr << "Invalid parameters for function " << *fname;
@@ -427,7 +428,7 @@ void *SAVisitor::visit(ASTNodeFunctionDecl *n){
 
   if(n->formalParams){
     vector<TokenType> *vtt = (vector<TokenType>*)n->formalParams->accept(this);
-    functions[*name] = *vtt;
+	functions[*name] = *vtt;
   }
   n->block->accept(this);
 
@@ -465,8 +466,9 @@ void *SAVisitor::visit(ASTNodeBlock *n){
 }
 void *SAVisitor::visit(ASTNodeProgram *n){
   newScope();
+  // visit function declerations first
   for(unsigned int i = 0; i < n->statements.size(); ++i){
-    n->statements[i]->accept(this);
+     n->statements[i]->accept(this);
   }
   removeScope();
 
