@@ -34,11 +34,11 @@ int main(){
   
   lexer = unique_ptr<Lexer>( new Lexer(*file) );
   lexer->lex();
-  lexer->removeComments();
-  tokens = lexer->get_tokens();
 #ifdef TEST_LEXER
   lexer->printTokens(); // for debugging purposes
 #endif
+  lexer->removeComments();
+  tokens = lexer->get_tokens();
   file.reset();
   lexer.reset(); // freeing pointer optimistions
 
@@ -67,11 +67,8 @@ int main(){
   // Do Semantic Analysis pass 
   // (note: program exits during pass if this fails. reporting any necessary errors)
   SAVisitor *sav = new SAVisitor();
-  sav->newScope();
-  sav->insert("x", BOOL);
-  sav->newScope();
-  cout << "\n\n" << *(TokenType*)tree->accept(sav) << "\n"; // Anlyze;
-  sav->printSymbolTable();
+  tree->accept(sav);
+  cout << "\nSemantic Analysis Succesful\n";
   delete sav;
 
   parser.reset();

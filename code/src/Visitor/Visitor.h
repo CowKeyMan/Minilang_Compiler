@@ -155,19 +155,9 @@ class SAVisitor : virtual public Visitor{
     TokenType* lookup(string); // lookup starting from vector 0 and going down
     // a map, mapping function names to their parameter types
     map <string, vector<TokenType> > functions; 
-    TokenType currentFunctionType;
+    TokenType *currentFunctionType = nullptr;
     int lineNumber = 0;
-    void printSymbolTable(){
-      std::cout << "Symbol Table:\n";
-      for(unsigned int i = 0; i < scope.size(); ++i){
-        std::cout << "scope " << i << std::endl;
-        map<string, TokenType>::iterator it;
-        for ( it = scope[i].begin(); it != scope[i].end(); it++ ){
-          std::cout << it->first << " : " << Token::TokenString[it->second] << std::endl;
-        }
-        std::cout << "\n";
-      }
-    }
+    void printSymbolTable();
 };
 
 #endif // VISITOR_H

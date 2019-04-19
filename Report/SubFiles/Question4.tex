@@ -63,8 +63,10 @@ Next, the visit classes are discussed. Each one of these, although described as 
 		\subitem makes sure that the type of the expression also matches the type of the current function it is within by using the \textit{currentFunctionType} variable.
 	\item IfStatement : void
 		\subitem validates that expression is of type bool
+		\subitem start new scope
 		\subitem validates block
-		\subitem validates else block if it exists
+		\subitem pop scope
+		\subitem validates else block if it exists (while creating and popping scopes)
 	\item ForStatement : void
 		\subitem creates new scope
 		\subitem Performs and validates the variable declaration
@@ -78,16 +80,18 @@ Next, the visit classes are discussed. Each one of these, although described as 
 	\item FormalParams : Vector of Type
 		\subitem iterates trough each FormalParam declaration adding them to the vector
 	\item FunctionDecl : void
-		\subitem start new scope
-		\subitem add function to the functionParams map after validating the FormalParams(Note: they are added in the scope within their own methods)
+		\subitem add function to the functionParams map after starting new scope and  validating the FormalParams(Note: they are added in the scope within their own methods)
 		\subitem set the currentFunctionType to the type of the function so ReturnStatement can know
 		Add function to symbol table after validating size of symbol table is one (outer scope)
 		\subitem validate the Block
+		\subitem close scope
 	\item Statement : void
 		\subitem validate the statement
+		\subitem if block, then start new scope
 	\item Block
-		\subitem start new scope
 		\subitem validate the list of statements
 	\item Program
 		\subitem validate the list of statements
 \end{itemize}
+
+Note: scopes were not started nd ended in the 'Block' node because of function declarations.

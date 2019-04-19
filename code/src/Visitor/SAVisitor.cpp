@@ -5,6 +5,7 @@
 
 using std::map;
 using std::cerr;
+using std::cout;
 
 void SAVisitor::newScope(){
   scope.insert(scope.begin() ,map<string, TokenType>());
@@ -29,6 +30,28 @@ TokenType* SAVisitor::lookup(string s){
   }
   return nullptr;
 }
+void SAVisitor::printSymbolTable(){
+  cout << "Symbol Table:\n";
+  for(unsigned int i = 0; i < scope.size(); ++i){
+    cout << "scope " << i << std::endl;
+    map<string, TokenType>::iterator it;
+    for ( it = scope[i].begin(); it != scope[i].end(); it++ ){
+      cout << it->first << " : " << Token::TokenString[it->second] << std::endl;
+    }
+    cout << "\n\n";
+  }
+  cout << "Functions Table:\n";
+  map<string, vector<TokenType>>::iterator it;
+  for ( it = functions.begin(); it != functions.end(); it++ ){
+    cout << it->first << " : ";
+    for(unsigned int i = 0; i < it->second.size(); ++i){
+      cout << Token::TokenString[it->second[i]] << ", ";
+    }
+    cout << "\n";
+  }
+  cout << "\n";
+}
+
 
 void *SAVisitor::visit(ASTNodeType *n){
   TokenType *tt = nullptr;
@@ -77,22 +100,38 @@ void *SAVisitor::visit(ASTNodeActualParams *n){
 }
 void *SAVisitor::visit(ASTNodeFunctionCall *n){
   // if function not found in functions table
-  string fname = *(string*)n->identifier->accept(this);
-  if(! functions.count( fname )){
-    cerr << fname << " at line number ";
+  string *fname = (string*)n->identifier->accept(this);
+  if(! functions.count( *fname )){
+    cerr << *fname << " at line number ";
     cerr << lineNumber << " is not a function." << "\n";
     exit(EXIT_FAILURE);
   }
-  if(n->actualParams != NULL){
-    vector<TokenType> *vtt = (vector<TokenType>*)n->actualParams->accept(this);
+  // check parmaters are correct
+  // check size
+  vector<TokenType> reqd = functions.find(*fname)->second;
+  if(n->actualParams == NULL && reqd.size() > 0){
+    cerr << "Invalid parameters for function " << *fname;
+    cerr << " at line number " << lineNumber << "\n";
+    exit(EXIT_FAILURE);
+  }
+  vector<TokenType*> vtt = *(vector<TokenType*>*)n->actualParams->accept(this);
+  if(vtt.size() != reqd.size()){
+    cerr << "Invalid parameters for function " << *fname;
+    cerr << " at line number " << lineNumber << "\n";
+    exit(EXIT_FAILURE);
+  }
+  //check types
+  for(unsigned int i = 0; i < vtt.size(); ++i){
 
-    if(! vectors_equal(*vtt, functions.find(fname)->second)){
-      cerr << "Invalid parameters for function " << fname;
-      cerr << " at line number " << fname << "\n";
+    if((*vtt[i] != reqd[i]) && ((reqd[i] == BOOL || *vtt[i] == BOOL)
+                    || reqd[i] == INT)){
+      cerr << "Invalid parameters for function " << *fname;
+      cerr << " at line number " << lineNumber << "\n";
       exit(EXIT_FAILURE);
     }
   }
-  return (TokenType*)lookup(fname);
+
+  return (TokenType*)lookup(*fname);
 }
 void *SAVisitor::visit(ASTNodeSubExpression *n){
   return (TokenType*)n->expression->accept(this);
@@ -128,8 +167,14 @@ void *SAVisitor::visit(ASTNodeUnary *n){
 }
 void *SAVisitor::visit(ASTNodeFactor *n){
   if(ASTNodeIdentifier* n2 = dynamic_cast<ASTNodeIdentifier*>(n->node)){
-    n2->accept(this);
-    return (TokenType*)lookup(*(string*)n2->accept(this));
+    string name = *(string*)n2->accept(this);
+
+    TokenType *tt = (TokenType*)lookup(name);
+    if(tt == nullptr){
+      cerr << "Identifier " << name << " does not exist\n";
+      exit(EXIT_FAILURE);
+    }
+    return tt;
   }
   return (TokenType*)n->node->accept(this);
 }
@@ -216,10 +261,11 @@ void *SAVisitor::visit(ASTNodeExpression *n){
     n->relationalOp[i]->accept(this); // just to set new line number
     // new type
     TokenType *newT = (TokenType*)n->simpleExpressions[i+1]->accept(this);
-    if(*refType != BOOL || *newT != BOOL){
+    if(*refType == BOOL || *newT == BOOL){
       cerr << "Type mismatch at line " << lineNumber << "\n";
       exit(EXIT_FAILURE);
     }
+    *refType = BOOL;
   }
 
   return (TokenType*) refType;
@@ -232,11 +278,16 @@ void *SAVisitor::visit(ASTNodeAssignment *n){
     cerr << " already defined as  function";
     exit(EXIT_FAILURE);
   }
+  
+  TokenType type = *lookup(name);
+  TokenType tt = *(TokenType*)n->expression->accept(this);
 
-  if(*lookup(name) != *(TokenType*)n->expression->accept(this)){
+  if((tt != type) && ((type == BOOL || tt == BOOL)
+                    || type == INT)){
     cerr << "Type mismatch at line " << lineNumber << "\n";
     exit(EXIT_FAILURE);
   }
+
   return 0;
 }
 void *SAVisitor::visit(ASTNodeVariableDecl *n){
@@ -244,7 +295,10 @@ void *SAVisitor::visit(ASTNodeVariableDecl *n){
   string name = *(string*)n->identifier->accept(this);
   insert( name , type );
 
-  if(type != *(TokenType*)n->expression->accept(this)){
+  TokenType tt = *(TokenType*)n->expression->accept(this);
+
+  if((tt != type) && ((type == BOOL || tt == BOOL)
+                    || type == INT)){
     cerr << "Type mismatch at line " << lineNumber << "\n";
     exit(EXIT_FAILURE);
   }
@@ -255,9 +309,9 @@ void *SAVisitor::visit(ASTNodePrintStatement *n){
   return 0;
 }
 void *SAVisitor::visit(ASTNodeReturnStatement *n){
-  TokenType tt = *(TokenType*)n->expression->accept(this);
+  TokenType *tt = (TokenType*)n->expression->accept(this);
 
-  if(currentFunctionType != tt){
+  if(currentFunctionType != nullptr && *currentFunctionType != *tt){
     cerr << "Bad return type at line " << lineNumber << "\n";
     exit(EXIT_FAILURE);
   }
@@ -271,10 +325,15 @@ void *SAVisitor::visit(ASTNodeIfStatement *n){
     exit(EXIT_FAILURE);
   }
 
+  newScope();
   n->block->accept(this);
+  removeScope();
 
-  if(n->elseBlock) n->block->accept(this);
-
+  if(n->elseBlock){
+    newScope();
+    n->block->accept(this);
+    removeScope();
+  }
   return 0;
 }
 void *SAVisitor::visit(ASTNodeForStatement *n){
@@ -297,7 +356,6 @@ void *SAVisitor::visit(ASTNodeForStatement *n){
 void *SAVisitor::visit(ASTNodeFormalParam *n){
   string *name = (string*)n->identifier->accept(this);
   TokenType *ttl = (TokenType*)n->type->accept(this);
-  std::cout << *ttl;
   insert( *name, *ttl );
 
   return (TokenType*)ttl; 
@@ -310,31 +368,39 @@ void *SAVisitor::visit(ASTNodeFormalParams *n){
   return (vector<TokenType>*)tt;
 }
 void *SAVisitor::visit(ASTNodeFunctionDecl *n){
-  newScope();
-  string name = *(string*)n->identifier->accept(this);
-  TokenType tt = *(TokenType*)n->type->accept(this);
-  insert(name, tt);
+  string *name = (string*)n->identifier->accept(this);
+  TokenType *tt = (TokenType*)n->type->accept(this);
+  insert(*name, *tt);
 
-  vector<TokenType> vtt = *(vector<TokenType>*)n->formalParams->accept(this);
-  functions[name] = vtt;
+  currentFunctionType = new TokenType(*tt);
+  functions[*name] = vector<TokenType>();
+  newScope();
+
+  vector<TokenType> *vtt = (vector<TokenType>*)n->formalParams->accept(this);
+  functions[*name] = *vtt;
 
   n->block->accept(this);
 
   removeScope();
-
+  currentFunctionType = nullptr;
   return 0;
 }
 void *SAVisitor::visit(ASTNodeStatement *n){
-  n->statement->accept(this);
+  // if it is a block, start new scope
+  if(dynamic_cast<ASTNodeBlock*>(n->statement)){
+    newScope();
+    n->statement->accept(this);
+    removeScope();
+  }else{
+    n->statement->accept(this);
+  }
 
   return 0;
 }
 void *SAVisitor::visit(ASTNodeBlock *n){
-  newScope();
   for(unsigned int i = 0; i < n->statements.size(); ++i){
     n->statements[i]->accept(this);
   }
-  removeScope();
 
   return 0;
 }
