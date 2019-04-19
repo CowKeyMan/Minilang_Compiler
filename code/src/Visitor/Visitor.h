@@ -146,7 +146,7 @@ class SAVisitor : virtual public Visitor{
     virtual void *visit(ASTNodeStatement *n);
     virtual void *visit(ASTNodeBlock *n);
     virtual void *visit(ASTNodeProgram *n);
-  private:
+  // private:
     vector<map<string, TokenType>> scope;
     void newScope(); // add scope as the 0 index of the vector
     void insert(string, TokenType); // in current scope
@@ -157,13 +157,13 @@ class SAVisitor : virtual public Visitor{
     map <string, vector<TokenType> > functions; 
     TokenType currentFunctionType;
     int lineNumber = 0;
-
     void printSymbolTable(){
+      std::cout << "Symbol Table:\n";
       for(unsigned int i = 0; i < scope.size(); ++i){
         std::cout << "scope " << i << std::endl;
         map<string, TokenType>::iterator it;
         for ( it = scope[i].begin(); it != scope[i].end(); it++ ){
-          std::cout << it->first << " : " << it->second << std::endl;
+          std::cout << it->first << " : " << Token::TokenString[it->second] << std::endl;
         }
         std::cout << "\n";
       }

@@ -2,7 +2,7 @@
 
 Parser::Parser(vector<Token> *tokens){
   tokenManager = new TokenManager(tokens);
-  tree = new ASTNodeFactor(tokenManager);
+  tree = new ASTNodeFormalParams(tokenManager);
 };
 
 bool Parser::parse(){

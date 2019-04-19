@@ -64,8 +64,14 @@ int main(){
   cout << xmlv->getXML();
   delete xmlv;
 
+  // Do Semantic Analysis pass 
+  // (note: program exits during pass if this fails. reporting any necessary errors)
   SAVisitor *sav = new SAVisitor();
+  sav->newScope();
+  sav->insert("x", BOOL);
+  sav->newScope();
   cout << "\n\n" << *(TokenType*)tree->accept(sav) << "\n"; // Anlyze;
+  sav->printSymbolTable();
   delete sav;
 
   parser.reset();

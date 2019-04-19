@@ -7,7 +7,7 @@ using std::map;
 using std::cerr;
 
 void SAVisitor::newScope(){
-  scope.push_back(map<string, TokenType>());
+  scope.insert(scope.begin() ,map<string, TokenType>());
 }
 void SAVisitor::insert(string s, TokenType tt){
   // if lexeme already exists in current scope or is a function name
@@ -54,7 +54,7 @@ void *SAVisitor::visit(ASTNodeLiteral *n){
 }
 void *SAVisitor::visit(ASTNodeIdentifier *n){
   lineNumber = n->token->lineNumber;
-  return 0;
+  return (string*)(&n->token->lexeme);
 }
 void *SAVisitor::visit(ASTNodeMultiplicativeOp *n){
   lineNumber = n->token->lineNumber;
@@ -108,7 +108,7 @@ void *SAVisitor::visit(ASTNodeUnary *n){
       if(! (n->token->type == MINUS)) {
         cerr << "Invalid unary operator " << n->token->lexeme;
         cerr << " at line number " << n->token->lineNumber;
-        cerr << ". Expression must be of numeric type\n";
+        cerr << ". Expression must be of boolean type\n";
         exit(EXIT_FAILURE);
       }
     break;
@@ -117,7 +117,7 @@ void *SAVisitor::visit(ASTNodeUnary *n){
       if(! (n->token->type == NOT)){
         cerr << "Invalid unary operator " << n->token->lexeme;
         cerr << " at line number " << n->token->lineNumber;
-        cerr << ". Expression must be of boolean type\n";
+        cerr << ". Expression must be of numeric type\n";
         exit(EXIT_FAILURE);
       }
     break;
@@ -127,6 +127,10 @@ void *SAVisitor::visit(ASTNodeUnary *n){
   return (TokenType*)tt;
 }
 void *SAVisitor::visit(ASTNodeFactor *n){
+  if(ASTNodeIdentifier* n2 = dynamic_cast<ASTNodeIdentifier*>(n->node)){
+    n2->accept(this);
+    return (TokenType*)lookup(*(string*)n2->accept(this));
+  }
   return (TokenType*)n->node->accept(this);
 }
 void *SAVisitor::visit(ASTNodeTerm *n){
@@ -141,7 +145,7 @@ void *SAVisitor::visit(ASTNodeTerm *n){
       case TIMES:
       case DIVISION:
         if(*refType == BOOL || *newT == BOOL){
-          cerr << "Type mismatch for operator" << Token::TokenString[multT];
+          cerr << "Type mismatch for operator " << Token::TokenString[multT];
           cerr << " at line " << lineNumber << "\n";
           exit(EXIT_FAILURE);
         }
@@ -153,7 +157,7 @@ void *SAVisitor::visit(ASTNodeTerm *n){
       break;
       case AND:
         if(*refType != BOOL || *newT != BOOL){ // both must be BOOL
-          cerr << "Type mismatch for operator" << Token::TokenString[multT];
+          cerr << "Type mismatch for operator " << Token::TokenString[multT];
           cerr << " at line " << lineNumber << "\n";
           exit(EXIT_FAILURE);
         }
@@ -178,7 +182,7 @@ void *SAVisitor::visit(ASTNodeSimpleExpression *n){
       case PLUS:
       case MINUS:
         if(*refType == BOOL || *newT == BOOL){
-          cerr << "Type mismatch for operator" << Token::TokenString[addT];
+          cerr << "Type mismatch for operator " << Token::TokenString[addT];
           cerr << " at line " << lineNumber << "\n";
           exit(EXIT_FAILURE);
         }
@@ -291,9 +295,10 @@ void *SAVisitor::visit(ASTNodeForStatement *n){
   return 0;
 }
 void *SAVisitor::visit(ASTNodeFormalParam *n){
-  string name = *(string*)n->identifier->accept(this);
+  string *name = (string*)n->identifier->accept(this);
   TokenType *ttl = (TokenType*)n->type->accept(this);
-  insert( name, *ttl );
+  std::cout << *ttl;
+  insert( *name, *ttl );
 
   return (TokenType*)ttl; 
 }
