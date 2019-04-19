@@ -48,19 +48,25 @@ int main(){
   parser = unique_ptr<Parser>( new Parser(&tokens) );
 
   bool successParse = parser->parse();
-  cout << (successParse? "Parsing successful" : "Error while parsing") << "\n";
+  cout << (successParse? "\nParsing successful\n" : "\nError while parsing") << "\n";
   if(! successParse){
     cout << "Unexpected token " << tokens[parser->getTokenManagerIndex()].lexeme;
     cout << " at line " << tokens[parser->getTokenManagerIndex()].lineNumber << "\n";
     exit(EXIT_FAILURE);
   }
+
+  ASTNode* tree = parser->getTree();
   
   // Do XML Generation pass and print it to user
-  XMLVisitor *x = new XMLVisitor();
-  ASTNode* tree = parser->getTree();
-  tree->accept(x); // Generate the xml
-  x->trimXMLNewLines();
-  cout << x->getXML();
+  XMLVisitor *xmlv = new XMLVisitor();
+  tree->accept(xmlv); // Generate the xml
+  xmlv->trimXMLNewLines();
+  cout << xmlv->getXML();
+  delete xmlv;
+
+  SAVisitor *sav = new SAVisitor();
+  cout << "\n\n" << *(TokenType*)tree->accept(sav) << "\n"; // Anlyze;
+  delete sav;
 
   parser.reset();
   tokens = vector<Token>();

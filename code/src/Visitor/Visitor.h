@@ -4,6 +4,7 @@
 #include <sstream>
 #include <stack>
 #include <map>
+#include <iostream>
 
 #include "../Parser/AST.h"
 
@@ -135,7 +136,7 @@ class SAVisitor : virtual public Visitor{
     virtual void *visit(ASTNodeExpression *n);
     virtual void *visit(ASTNodeAssignment *n);
     virtual void *visit(ASTNodeVariableDecl *n);
-    virtual void *visit(ASTNodePrintStatement*) = 0;
+    virtual void *visit(ASTNodePrintStatement*);
     virtual void *visit(ASTNodeReturnStatement *n);
     virtual void *visit(ASTNodeIfStatement *n);
     virtual void *visit(ASTNodeForStatement *n);
@@ -156,6 +157,17 @@ class SAVisitor : virtual public Visitor{
     map <string, vector<TokenType> > functions; 
     TokenType currentFunctionType;
     int lineNumber = 0;
+
+    void printSymbolTable(){
+      for(unsigned int i = 0; i < scope.size(); ++i){
+        std::cout << "scope " << i << std::endl;
+        map<string, TokenType>::iterator it;
+        for ( it = scope[i].begin(); it != scope[i].end(); it++ ){
+          std::cout << it->first << " : " << it->second << std::endl;
+        }
+        std::cout << "\n";
+      }
+    }
 };
 
 #endif // VISITOR_H

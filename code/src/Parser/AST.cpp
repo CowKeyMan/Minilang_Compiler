@@ -6,8 +6,9 @@ using std::cerr;
 
 Token *ASTNode::match(TokenType tt){
   Token *token = tokenManager->nextToken();
-  if(token->type != tt){
-    cerr << "Error, could not match " << Token::TokenString[tt] << " at line " << token->lineNumber << "\n";
+  if(token == nullptr || token->type != tt){
+    cerr << "Error, could not match " << Token::TokenString[tt];
+    cerr << " at line " << tokenManager->peekToken(-1)->lineNumber << "\n";
 	  exit(EXIT_FAILURE);
   }else{
     return token;

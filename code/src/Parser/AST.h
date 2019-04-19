@@ -105,7 +105,7 @@ class ASTNodeFunctionCall : virtual public ASTNode{
     virtual bool parse(); // returns true if parse was successful
     virtual void *accept(Visitor *v);
 
-    ASTNode* identifier;
+    ASTNode* identifier = NULL;
     ASTNode* actualParams = NULL;
 };
 
@@ -117,7 +117,7 @@ class ASTNodeSubExpression : virtual public ASTNode{
     virtual bool parse(); // returns true if parse was successful
     virtual void *accept(Visitor *v);
 
-    ASTNode* expression;
+    ASTNode* expression = NULL;
 };
 
 class ASTNodeUnary: virtual public ASTNode{
@@ -129,7 +129,7 @@ class ASTNodeUnary: virtual public ASTNode{
     virtual void *accept(Visitor *v);
 
     Token* token;
-    ASTNode* expression;
+    ASTNode* expression = NULL;
 };
 
 class ASTNodeFactor: virtual public ASTNode{
@@ -140,7 +140,7 @@ class ASTNodeFactor: virtual public ASTNode{
     virtual bool parse(); // returns true if parse was successful
     virtual void *accept(Visitor *v);
 
-    ASTNode* node;
+    ASTNode* node = NULL;
 };
 
 class ASTNodeTerm: virtual public ASTNode{
@@ -199,9 +199,9 @@ class ASTNodeVariableDecl : virtual public ASTNode{
     virtual bool parse(); // returns true if parse was successful
     virtual void *accept(Visitor *v);
 
-    ASTNode* identifier;
-    ASTNode* type;
-    ASTNode* expression;
+    ASTNode* identifier = NULL;
+    ASTNode* type = NULL;
+    ASTNode* expression = NULL;
 };
 
 class ASTNodePrintStatement : virtual public ASTNode{
@@ -212,7 +212,7 @@ class ASTNodePrintStatement : virtual public ASTNode{
     virtual bool parse(); // returns true if parse was successful
     virtual void *accept(Visitor *v);
 
-    ASTNode* expression;
+    ASTNode* expression = NULL;
 };
 
 class ASTNodeReturnStatement : virtual public ASTNode{
@@ -223,7 +223,7 @@ class ASTNodeReturnStatement : virtual public ASTNode{
     virtual bool parse(); // returns true if parse was successful
     virtual void *accept(Visitor *v);
 
-    ASTNode* expression;
+    ASTNode* expression = NULL;
 };
 
 class ASTNodeIfStatement : virtual public ASTNode{
@@ -234,8 +234,8 @@ class ASTNodeIfStatement : virtual public ASTNode{
     virtual bool parse(); // returns true if parse was successful
     virtual void *accept(Visitor *v);
 
-    ASTNode* expression;
-    ASTNode* block;
+    ASTNode* expression = NULL;
+    ASTNode* block = NULL;
     ASTNode* elseBlock = NULL; // optional
 };
 
@@ -248,7 +248,7 @@ class ASTNodeForStatement : virtual public ASTNode{
     virtual void *accept(Visitor *v);
 
     ASTNode* variableDecl = NULL; // optional
-    ASTNode* expression;
+    ASTNode* expression = NULL;
     ASTNode* assignment = NULL; // optional
     ASTNode* block = NULL; // optional
 };
@@ -261,8 +261,8 @@ class ASTNodeFormalParam : virtual public ASTNode{
     virtual bool parse(); // returns true if parse was successful
     virtual void *accept(Visitor *v);
 
-    ASTNode* identifier;
-    ASTNode* type;
+    ASTNode* identifier = NULL;
+    ASTNode* type = NULL;
 };
 
 class ASTNodeFormalParams : virtual public ASTNode{
@@ -284,10 +284,10 @@ class ASTNodeFunctionDecl : virtual public ASTNode{
     virtual bool parse(); // returns true if parse was successful
     virtual void *accept(Visitor *v);
 
-    ASTNode* identifier;
+    ASTNode* identifier = NULL;
     ASTNode* formalParams = NULL;
-    ASTNode* type;
-    ASTNode* block;
+    ASTNode* type = NULL;
+    ASTNode* block = NULL;
 };
 
 class ASTNodeStatement : virtual public ASTNode{
@@ -298,7 +298,7 @@ class ASTNodeStatement : virtual public ASTNode{
     virtual bool parse(); // returns true if parse was successful
     virtual void *accept(Visitor *v);
 
-    ASTNode* statement; // statement node
+    ASTNode* statement = NULL; // statement node
 };
 
 class ASTNodeBlock : virtual public ASTNode{

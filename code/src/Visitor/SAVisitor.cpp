@@ -31,16 +31,16 @@ TokenType* SAVisitor::lookup(string s){
 }
 
 void *SAVisitor::visit(ASTNodeType *n){
-  TokenType* tt = nullptr;
+  TokenType *tt = nullptr;
   switch(n->token->type){
     case TYPE_FLOAT:
-      *tt = FLOAT;
+      tt = new TokenType(FLOAT);
     break;
     case TYPE_INT:
-      *tt = INT;
+      tt = new TokenType(INT);
     break;
     case TYPE_BOOL:
-      *tt = BOOL;
+      tt = new TokenType(BOOL);
     break;
     default:
     break;
