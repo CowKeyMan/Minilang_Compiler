@@ -361,17 +361,17 @@ void *SAVisitor::visit(ASTNodeIfStatement *n){
       }
 
       ifsReturn.erase(ifsReturn.begin() + ifsReturnIndex);
-      ifsReturn.erase(ifsReturn.end() + ifsReturnIndex);
+      ifsReturn.erase(ifsReturn.begin() + ifsReturnIndex);
     }
   }else{
     if(!insideFor && insideFunction){
-      ifsReturn.erase(ifsReturn.begin() + ifsReturnIndex); // remove the for since it is now invalid
+      ifsReturn.erase(ifsReturn.begin() + ifsReturnIndex);
     }
   }
 
   if(!insideFor && insideFunction){
     ifsReturnIndex--;
-  }
+  } 
 
   return 0;
 }
