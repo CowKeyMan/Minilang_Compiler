@@ -40,6 +40,6 @@ class Token{
 // given a string, it checks if it is a keyword or an identifier
 Token processAlpha(string lexeme, int lineNumber);
 // given a single character string, it checks if it is a singular punctuation (ex. '+','-',';' etc)
-Token processNormalPunctuation(string lexeme, int lieneumber);
+Token *processNormalPunctuation(string lexeme, int lieneumber);
 
 #endif // TOKEN_H

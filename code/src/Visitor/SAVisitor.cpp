@@ -261,10 +261,9 @@ void *SAVisitor::visit(ASTNodeReturnStatement *n){
 }
 void *SAVisitor::visit(ASTNodeIfStatement *n){
   TokenType tt = *(TokenType*)n->expression->accept(this);
-  
   // expression must be true or false
   if(tt != BOOL){
-    cerr << "Condition must be true or false at line " << lineNumber << "\n";
+    cerr << "Expression must be a condition at line " << lineNumber << "\n";
     exit(EXIT_FAILURE);
   }
 
@@ -274,12 +273,56 @@ void *SAVisitor::visit(ASTNodeIfStatement *n){
 
   return 0;
 }
-void *SAVisitor::visit(ASTNodeForStatement *n){}
-void *SAVisitor::visit(ASTNodeFormalParam *n){}
-void *SAVisitor::visit(ASTNodeFormalParams *n){}
-void *SAVisitor::visit(ASTNodeFunctionDecl *n){}
+void *SAVisitor::visit(ASTNodeForStatement *n){
+  newScope();
+  if(n->variableDecl) n->variableDecl->accept(this);
+
+  TokenType tt = *(TokenType*)n->expression->accept(this);
+  if(tt != BOOL){
+    cerr << "Expression must be a condition at line " << lineNumber << "\n";
+    exit(EXIT_FAILURE);
+  }
+
+  if(n->assignment) n->assignment->accept(this);
+
+  n->block->accept(this);
+  removeScope();
+
+  return 0;
+}
+void *SAVisitor::visit(ASTNodeFormalParam *n){
+  string name = *(string*)n->identifier->accept(this);
+  TokenType *ttl = (TokenType*)n->type->accept(this);
+  insert( name, *ttl );
+
+  return (TokenType*)ttl; 
+}
+void *SAVisitor::visit(ASTNodeFormalParams *n){
+  vector<TokenType> *tt = new vector<TokenType>();
+  for(unsigned int i = 0; i < n->formalParams.size(); ++i){
+    tt->push_back( *(TokenType*)n->formalParams[i]->accept(this) );
+  }
+  return (vector<TokenType>*)tt;
+}
+void *SAVisitor::visit(ASTNodeFunctionDecl *n){
+  newScope();
+  string name = *(string*)n->identifier->accept(this);
+  TokenType tt = *(TokenType*)n->type->accept(this);
+  insert(name, tt);
+
+  vector<TokenType> vtt = *(vector<TokenType>*)n->formalParams->accept(this);
+  functions[name] = vtt;
+
+  n->block->accept(this);
+
+  removeScope();
+
+  return 0;
+}
 void *SAVisitor::visit(ASTNodeStatement *n){
   n->statement->accept(this);
+
+  return 0;
 }
 void *SAVisitor::visit(ASTNodeBlock *n){
   newScope();
@@ -287,6 +330,8 @@ void *SAVisitor::visit(ASTNodeBlock *n){
     n->statements[i]->accept(this);
   }
   removeScope();
+
+  return 0;
 }
 void *SAVisitor::visit(ASTNodeProgram *n){
   newScope();
@@ -294,4 +339,6 @@ void *SAVisitor::visit(ASTNodeProgram *n){
     n->statements[i]->accept(this);
   }
   removeScope();
+
+  return 0;
 }

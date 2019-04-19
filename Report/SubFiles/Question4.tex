@@ -62,18 +62,18 @@ Next, the visit classes are discussed. Each one of these, although described as 
 	\item ReturnStatement : void
 		\subitem makes sure that the type of the expression also matches the type of the current function it is within by using the \textit{currentFunctionType} variable.
 	\item IfStatement : void
-		\subitem validates expression
+		\subitem validates that expression is of type bool
 		\subitem validates block
 		\subitem validates else block if it exists
 	\item ForStatement : void
 		\subitem creates new scope
-		\subitem Performs and validates the variable decleartion
-		\subitem validates expression
+		\subitem Performs and validates the variable declaration
+		\subitem validates that expression is of type bool
 		\subitem validates assignment
 		\subitem validates block
 		\subitem pops scope
 	\item FormalParam : Type
-		\subitem put the each paramater in the current symbol table
+		\subitem put each paramater in the current symbol table
 		\subitem returns type of parameter
 	\item FormalParams : Vector of Type
 		\subitem iterates trough each FormalParam declaration adding them to the vector

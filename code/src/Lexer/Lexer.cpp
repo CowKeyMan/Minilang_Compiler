@@ -109,7 +109,7 @@ void Lexer::process_lexeme(string lexeme, State state){
 
   switch(state){
     case S00: // +-(){};:
-      tokens.push_back(processNormalPunctuation(lexeme, lineNumber));
+      tokens.push_back(*processNormalPunctuation(lexeme, lineNumber));
     break;
 
     case S02: // !=
@@ -153,7 +153,7 @@ void Lexer::process_lexeme(string lexeme, State state){
     break;
 
     case S15: // <>
-      tokens.push_back(processNormalPunctuation(lexeme, lineNumber));
+      tokens.push_back(*processNormalPunctuation(lexeme, lineNumber));
     break;
 
     case S16: // <= >=

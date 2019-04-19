@@ -75,10 +75,12 @@ character_token normal_punctuation[] = {
   {'*', TIMES}
 };
 
-Token processNormalPunctuation(string lexeme, int lineNumber){
-  for(uint8_t i = 0; i < sizeof(normal_punctuation)/sizeof(character_token); ++i){
+Token *processNormalPunctuation(string lexeme, int lineNumber){
+  Token *t = nullptr;
+  for(unsigned int i = 0; i < sizeof(normal_punctuation)/sizeof(character_token); ++i){
     if(lexeme[0] == normal_punctuation[i].character){
-      return Token(normal_punctuation[i].token, lexeme, 0.0f, lineNumber);
+      t = new Token(normal_punctuation[i].token, lexeme, 0.0f, lineNumber);
     }
   }
+  return t;
 }
