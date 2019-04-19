@@ -5,15 +5,23 @@ The task of the semantic analysis is to perform type checking and scope checking
 In order to achieve this, a new visitor inherited class was created called \textit{SAVisitor}. It contains the following functionality and data in order to perform its job (as well as the visit methods).
 
 \begin{lstlisting}[language=C++]
-vector<map<string, TokenType>> scope;
+ vector<map<string, TokenType>> scope;
 void newScope(); // add scope as the 0 index of the vector
 void insert(string, TokenType); // in current scope
 void removeScope(); // remove scope at position 0
 // set as pointer to TokenType due to the need to make it return null
-TokenType* lookup(string); // lookup starting from index 0 and going down
+TokenType* lookup(string); // lookup starting from vector 0 and going down
 // a map, mapping function names to their parameter types
-map <string, vector<TokenType> > functions;
-TokenType currentFunctionType;
+map <string, vector<TokenType> > functions; 
+TokenType *currentFunctionType = nullptr;
+int lineNumber = 0;
+
+// Methods to help determine if a function has a proper return statement in all paths
+bool insideFor = false; // do nothing while inside for
+bool insideFunction = false; // only applies if inside function
+vector<bool> ifsReturn;
+int ifsReturnIndex = -1;
+bool goodReturn;
 \end{lstlisting}
 
 The scope vector is treated like a stack, but created as a vector to be iterated over easily. New entries are inserted at the front (position 0) of the vector and same thing with deletions. When iterating, iteration also starts from the front, so new entries cover shadow old ones (scope shadowing).
@@ -94,4 +102,54 @@ Next, the visit classes are discussed. Each one of these, although described as 
 		\subitem validate the list of statements
 \end{itemize}
 
-Note: scopes were not started nd ended in the 'Block' node because of function declarations.
+Note: scopes were not started and ended in the 'Block' node because of function declarations.
+
+\subsubsection{Semantic Analysis Features}
+This section is to discuss some features including additional extras in the semantic analyser implementation
+\\\\
+The first feature is that error reporting includes precise errors as well as the included line number where the error occurred. This was made by having a global line number variable and updating it every time a node with a token is visited.
+\\\\
+Second extra feature is that type conversion from integers to floats is made available. So float types can accept integers, however integers cannot accept floats. This was made trough type checking.
+\\\\
+The program is allowed to exit abruptly, hence why return statements can be accepted from outside a function.
+\\\\
+A function declaration is checked to make sure \textbf{all code paths return a proper value}. This means that if a return exists in an if, but no corresponding return in an else or outside the if statement exists, the function is declared semantically incorrect. Returns in for loops are also not considered to be enough for a function to be valid for the semantic analyser. This was made possible trough the use of a stack and a few global variables, in conjunction with checks when returns are made inside of functions.
+\\\\
+Important to note is that function names cannot be overridden anywhere in the code.
+
+\subsection{Example Tests}
+
+
+Given the following code, the semantic analyser returns that it is valid
+\begin{lstlisting}[language=C]
+print 5;
+\end{lstlisting}
+
+However, while the parser can successfully parse the following, the semantic analyser does not find x in the table:
+\begin{lstlisting}[language=C]
+return x;
+\end{lstlisting}
+So the semantic analyser complains by saying:
+\begin{lstlisting}[numbers=none]
+Identifier x at line 1 does not exist
+\end{lstlisting}
+
+The following is a function declaration, note how it is defined badly, because if the code goes to the scope where the comment resides, then it would return null, which is not a supported type
+\begin{lstlisting}[language=C]
+fn u():bool{
+	if(4>6){
+		return true;
+	}else{
+		if(5>6){
+			return true;
+		}else{
+			//return true;
+		}
+	}
+}
+\end{lstlisting}
+and the compiler complains:
+\begin{lstlisting}[numbers=none]
+Function u at line number 1: not all code paths return a value
+\end{lstlisting}
+This could be remedied by uncommenting the comment.

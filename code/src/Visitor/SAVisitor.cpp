@@ -171,7 +171,8 @@ void *SAVisitor::visit(ASTNodeFactor *n){
 
     TokenType *tt = (TokenType*)lookup(name);
     if(tt == nullptr){
-      cerr << "Identifier " << name << " does not exist\n";
+      cerr << "Identifier " << name << " at line ";
+	  cerr << lineNumber << " does not exist\n";
       exit(EXIT_FAILURE);
     }
     return tt;
@@ -432,7 +433,9 @@ void *SAVisitor::visit(ASTNodeFunctionDecl *n){
 
   removeScope();
   if(!goodReturn){
-    cerr << "Function " << *name << ": not all code paths return a value\n";
+	n->identifier->accept(this); // to get line number again
+    cerr << "Function " << *name << " at line number " << lineNumber;
+	cerr << ": not all code paths return a value\n";
     exit(EXIT_FAILURE);
   }
   goodReturn = false;

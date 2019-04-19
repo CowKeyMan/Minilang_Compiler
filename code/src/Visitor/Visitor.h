@@ -165,13 +165,6 @@ class SAVisitor : virtual public Visitor{
     vector<bool> ifsReturn;
     int ifsReturnIndex = -1;
     bool goodReturn;
-
-    void printIf(){
-      for(unsigned int i = 0; i < ifsReturn.size(); ++i){
-        std::cout << ifsReturn[i] << " ";
-      }
-      std::cout << "\n";
-    }
 };
 
 #endif // VISITOR_H
