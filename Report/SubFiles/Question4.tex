@@ -52,7 +52,7 @@ Next, the visit classes are discussed. Each one of these, although described as 
 		\subitem validates that the unary operator is applied on the proper type and returns the type of the expression
 	\item Factor : Type
 		\subitem returns the type of its node
-	\item Term
+	\item Term : Type
 		\subitem validates that any operators are being used properly and are of the correct type
 	\item SimpleExpression : Type
 		\subitem validates that any operators are being used properly and are of the correct type (ex. "4*6.8" returns float, while 9*true gives an error)
@@ -99,7 +99,7 @@ Next, the visit classes are discussed. Each one of these, although described as 
 	\item Block : void
 		\subitem validate the list of statements
 	\item Program : void
-		\subitem validate the list of statements
+		\subitem validate the list of statements. Starts with function declarations.
 \end{itemize}
 
 Note: scopes were not started and ended in the 'Block' node because of function declarations.

@@ -200,15 +200,26 @@ class IVisitor : virtual public Visitor{
     virtual void *visit(ASTNodeBlock *n);
     virtual void *visit(ASTNodeProgram *n);
   private:
-    vector<map<string, void*>> scope;
+    struct ValueType
+    {
+      void* value;
+      TokenType type; //bool, int or float (needed for convertion)
+    };
+    
+
+    vector<map<string, ValueType>> scope;
     void newScope(); // add scope as the 0 index of the vector
-    void insert(string, void*); // in current scope
+    void insert(string, ValueType); // in current scope
     void removeScope(); // remove scope at position 0
-    // set as pointer to void* due to needing to have it be different types (bool, int or float)
-    void* lookup(string); // lookup starting from vector 0 and going down
+    ValueType lookup(string); // lookup starting from vector 0 and going down
     // a map, mapping function names to wherever the function is
     map <string, ASTNode*> functions;
     int lineNumber = 0;
+
+    bool performFunction = false;
+    vector<ValueType> parameters;
+    bool returnFromFunction = false;
+    ValueType returnValue;
 };
 
 #endif // VISITOR_H

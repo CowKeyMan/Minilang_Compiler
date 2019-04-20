@@ -5,40 +5,26 @@ The interpreter is to execute the program line by line and report any run time e
 A new visitor class was created called \textit{IVIsitor}, which contains the following items:
 
 \begin{lstlisting}
-// Semantic Analysis
-class IVIsitor : virtual public Visitor{
-	public:
-	IVisitor(){};
-	virtual ~IVisitor(){};
-	virtual void *visit(ASTNode*){ return 0; };
-	virtual void *visit(ASTNodeType *n);
-	virtual void *visit(ASTNodeLiteral *n);
-	virtual void *visit(ASTNodeIdentifier *n);
-	virtual void *visit(ASTNodeMultiplicativeOp *n);
-	virtual void *visit(ASTNodeAdditiveOp *n);
-	virtual void *visit(ASTNodeRelationalOp *n);
-	virtual void *visit(ASTNodeActualParams *n);
-	virtual void *visit(ASTNodeFunctionCall *n);
-	virtual void *visit(ASTNodeSubExpression *n);
-	virtual void *visit(ASTNodeUnary *n);
-	virtual void *visit(ASTNodeFactor *n);
-	virtual void *visit(ASTNodeTerm *n);
-	virtual void *visit(ASTNodeSimpleExpression *n);
-	virtual void *visit(ASTNodeExpression *n);
-	virtual void *visit(ASTNodeAssignment *n);
-	virtual void *visit(ASTNodeVariableDecl *n);
-	virtual void *visit(ASTNodePrintStatement*);
-	virtual void *visit(ASTNodeReturnStatement *n);
-	virtual void *visit(ASTNodeIfStatement *n);
-	virtual void *visit(ASTNodeForStatement *n);
-	virtual void *visit(ASTNodeFormalParam *n);
-	virtual void *visit(ASTNodeFormalParams *n);
-	virtual void *visit(ASTNodeFunctionDecl *n);
-	virtual void *visit(ASTNodeStatement *n);
-	virtual void *visit(ASTNodeBlock *n);
-	virtual void *visit(ASTNodeProgram *n);
-	private:
+struct ValueType
+{
+	void* value;
+	TokenType type; //bool, int or float (needed for convertion)
 };
+
+
+vector<map<string, ValueType>> scope;
+void newScope(); // add scope as the 0 index of the vector
+void insert(string, ValueType); // in current scope
+void removeScope(); // remove scope at position 0
+ValueType lookup(string); // lookup starting from vector 0 and going down
+// a map, mapping function names to wherever the function is
+map <string, ASTNode*> functions;
+int lineNumber = 0;
+
+bool performFunction = true;
+vector<ValueType> 
+bool returnFromFunction = false;
+ValueType returnValue;
 \end{lstlisting}
 
 Next, the functionality of each node is discussed:
@@ -52,67 +38,64 @@ Next, the functionality of each node is discussed:
 	\item MultiplicativeOp : MultOp Type (ex. TIMES, AND)
 		\subitem returns the operator itself, so that the expression node it belongs to can use it to operate on the values
 	\item AdditiveOp : AddOp Token (ex. PLUS, OR)
-		\subitem
+		\subitem Very similar to MultiplicativeOp but with Additive operators
 	\item RelationalOp : Type (ex. EQQ, ST)
-		\subitem
-	\item ActualParams : Vector of Type
-		\subitem
-	\item FunctionCall : Type
-		\subitem
-		\subitem
-		\subitem
-	\item SubExpression : Type
-		\subitem
-	\item Unary : Type
-		\subitem
-	\item Factor : Type
-		\subitem
-	\item Term
-		\subitem
-	\item SimpleExpression : Type
-		\subitem
-		\subitem
-	\item Expression : Type
-		\subitem
+		\subitem Very similar to MultiplicativeOp but with Relational operators
+	\item ActualParams : Vector of Values
+		\subitem gets value from each parameter and returns their vector
+	\item FunctionCall : Value
+		\subitem sets \textit{performFunction} to true
+		\subitem sets the \textit{parameters} value to the values returned from the actual parameters
+		\subitem gets function from \textit{functions} map and traverses it until a return is found
+		\subitem resets the parameters value
+		\subitem resets the \textit{returnValue} variable and returns it's previous value
+	\item SubExpression : Value
+		\subitem returns value of the containing expression
+	\item Unary : Value
+		\subitem applies the unary operator
+		\subitem returns the value after application
+	\item Factor : Value
+		\subitem returns value of containing factor
+		\subitem if it is an ID, looks it up in scope table
+	\item Term : Value
+		\subitem applies the operator
+		\subitem returns the value after application
+	\item SimpleExpression : Value
+		\subitem applies the operator
+		\subitem returns the value after application
+	\item Expression : Value
+		\subitem applies the operator
+		\subitem returns the value after application
 	\item Assignment : void
-		\subitem
-		\subitem
+		\subitem change value of item in symbol table
 	\item VariableDecl : void
-		\subitem
-		\subitem
+		\subitem Add item to symbol table
 	\item PrintStatement : void
-		\subitem
+		\subitem print given expression to screen (including a new line)
 	\item ReturnStatement : void
-		\subitem
+		\subitem sets the \textit{returnValue} variable to the expression
+		\subitem sets the \textit{returnFromFunction} variable to true, so that nothing is computed until the program exits the function
 	\item IfStatement : void
-		\subitem
-		\subitem
-		\subitem
-		\subitem
-		\subitem
+		\subitem computes the given expression
+		\subitem if true, opens new scope, visits the if-block, closes scope
+		\subitem if false, and an else-block exists, then opens new scope, the else block is visited, closes scope
 	\item ForStatement : void
-		\subitem
-		\subitem
-		\subitem
-		\subitem
-		\subitem
-		\subitem
-	\item FormalParam : Type
-		\subitem
-		\subitem
-	\item FormalParams : Vector of Type
-		\subitem
-	\item FunctionDecl : void
-		\subitem
-		\subitem
-	Add function to symbol table after validating size of symbol table is one (outer scope)
-		\subitem
-		\subitem
+		\subitem performs variable declaration
+		\subitem start new scope, visit the block, end scope
+		\subitem performs variable assignment
+		\subitem checks expression and exits if it is false, otherwise repeats block
+	\item FormalParam : string
+		\subitem returns name of parameter
+	\item FormalParams : Vector of strings
+		\subitem returns all the names of the parameters
+	\item FunctionDecl : void, Value
+		\subitem If \textit{performFunction} is false, simply add the function to the \textit{functions} map
+		\subitem If \textit{performFunction} is true, open new scope, assign the variables to the given parameters, traverse trough function block, close block, set \textit{returnFromFunction} to false, return the returnValue.
 	\item Statement : void
-		\subitem
-		\subitem
+		\subitem visits the statement
+		\subitem if is is a block, start ne scope, visit block, end scope
 	\item Block
-		\subitem
+		\subitem unless \textit{returnFromFunction} is set to true, iterate trough the statements, until \textit{returnFromFunction} is set to true
 	\item Program
-		\subitem
+		\subitem iterates trough all statements until the end, or until \textit{returnFromFunction} is set to true
 \end{itemize}
