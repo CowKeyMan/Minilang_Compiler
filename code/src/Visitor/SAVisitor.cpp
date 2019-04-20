@@ -468,7 +468,16 @@ void *SAVisitor::visit(ASTNodeProgram *n){
   newScope();
   // visit function declerations first
   for(unsigned int i = 0; i < n->statements.size(); ++i){
-     n->statements[i]->accept(this);
+    ASTNodeStatement* n2 = dynamic_cast<ASTNodeStatement*>(n->statements[i]);
+    if(dynamic_cast<ASTNodeFunctionDecl*>(n2->statement)){
+      n->statements[i]->accept(this);
+    }
+  }
+  for(unsigned int i = 0; i < n->statements.size(); ++i){
+    ASTNodeStatement* n2 = dynamic_cast<ASTNodeStatement*>(n->statements[i]);
+    if(! dynamic_cast<ASTNodeFunctionDecl*>(n2->statement)){
+      n->statements[i]->accept(this);
+    }
   }
   removeScope();
 

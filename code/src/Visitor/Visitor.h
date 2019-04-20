@@ -167,4 +167,48 @@ class SAVisitor : virtual public Visitor{
     bool goodReturn;
 };
 
+// Interpreter
+class IVIsitor : virtual public Visitor{
+  public:
+    IVisitor(){};
+    virtual ~IVisitor(){};
+    virtual void *visit(ASTNode*){ return 0; };
+    virtual void *visit(ASTNodeType *n);
+    virtual void *visit(ASTNodeLiteral *n);
+    virtual void *visit(ASTNodeIdentifier *n);
+    virtual void *visit(ASTNodeMultiplicativeOp *n);
+    virtual void *visit(ASTNodeAdditiveOp *n);
+    virtual void *visit(ASTNodeRelationalOp *n);
+    virtual void *visit(ASTNodeActualParams *n);
+    virtual void *visit(ASTNodeFunctionCall *n);
+    virtual void *visit(ASTNodeSubExpression *n);
+    virtual void *visit(ASTNodeUnary *n);
+    virtual void *visit(ASTNodeFactor *n);
+    virtual void *visit(ASTNodeTerm *n);
+    virtual void *visit(ASTNodeSimpleExpression *n);
+    virtual void *visit(ASTNodeExpression *n);
+    virtual void *visit(ASTNodeAssignment *n);
+    virtual void *visit(ASTNodeVariableDecl *n);
+    virtual void *visit(ASTNodePrintStatement*);
+    virtual void *visit(ASTNodeReturnStatement *n);
+    virtual void *visit(ASTNodeIfStatement *n);
+    virtual void *visit(ASTNodeForStatement *n);
+    virtual void *visit(ASTNodeFormalParam *n);
+    virtual void *visit(ASTNodeFormalParams *n);
+    virtual void *visit(ASTNodeFunctionDecl *n);
+    virtual void *visit(ASTNodeStatement *n);
+    virtual void *visit(ASTNodeBlock *n);
+    virtual void *visit(ASTNodeProgram *n);
+  private:
+    vector<map<string, void*>> scope;
+    void newScope(); // add scope as the 0 index of the vector
+    void insert(string, void*); // in current scope
+    void removeScope(); // remove scope at position 0
+    // set as pointer to void* due to needing to have it be different types (bool, int or float)
+    void* lookup(string); // lookup starting from vector 0 and going down
+    // a map, mapping function names to wherever the function is
+    map <string, ASTNode*> functions;
+    int lineNumber = 0;
+};
+
 #endif // VISITOR_H

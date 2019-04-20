@@ -24,7 +24,7 @@ int ifsReturnIndex = -1;
 bool goodReturn;
 \end{lstlisting}
 
-The scope vector is treated like a stack, but created as a vector to be iterated over easily. New entries are inserted at the front (position 0) of the vector and same thing with deletions. When iterating, iteration also starts from the front, so new entries cover shadow old ones (scope shadowing).
+The scope vector is treated like a stack, but created as a vector to be iterated over easily. New entries are inserted at the front (position 0) of the vector and same thing with deletions. When iterating, iteration also starts from the front, so new entries cover shadow old ones (scope shadowing). The scope together with the functions map, together make the symbol table.
 \\\\
 Next, the visit classes are discussed. Each one of these, although described as a \textit{void*}, has some form of concrete return value, and not all of them are the same. The functionality of each method and their return type is discussed below, for each type of ASTNode visit method:
 \begin{itemize}
@@ -34,11 +34,11 @@ Next, the visit classes are discussed. Each one of these, although described as 
 		\subitem returns the type of its literal value
 	\item Identifier : string (the lexeme of the identifier token)
 		\subitem returns name of the identifier. Lookup is handled by parent node
-	\item MultiplicativeOp : Type (ex. TIMES, AND)
+	\item MultiplicativeOp : MultOp Type (ex. TIMES, AND)
 		\subitem returns the operator itself, so that the expression node it belongs to can check that the operator supports the types it is operating upon. (Ex. "7*8" is valid, but "7 and 8" is not)
-	\item MultiplicativeOp : Token (ex. PLUS, OR)
+	\item AdditiveOp : AddOp Type (ex. PLUS, OR)
 		\subitem very similar to MultiplicativeOp but with different operators
-	\item RelationalOp : Type (ex. EQQ, ST)
+	\item RelationalOp : RelOp Type (ex. EQQ, ST)
 		\subitem very similar to MultiplicativeOp but with different operators
 	\item ActualParams : Vector of Type
 		\subitem iterates through all the parameters and returns a vector of all their types, so they can be matched with the formal parameters by the FunctionDecl node.
@@ -96,9 +96,9 @@ Next, the visit classes are discussed. Each one of these, although described as 
 	\item Statement : void
 		\subitem validate the statement
 		\subitem if block, then start new scope
-	\item Block
+	\item Block : void
 		\subitem validate the list of statements
-	\item Program
+	\item Program : void
 		\subitem validate the list of statements
 \end{itemize}
 
@@ -118,8 +118,7 @@ A function declaration is checked to make sure \textbf{all code paths return a p
 Important to note is that function names cannot be overridden anywhere in the code.
 \\\\
 Functions can only be defined in the outer scope
-\\\\
-Functions are the first to be analysed so they can be used before they are defined, because in reality they will be defined.
+\\\\ Functions can be used before they are declared, because their declaration is performed first. Hence no other variable anywhere in the program may use the function's name.
 
 \subsection{Example Tests}
 
