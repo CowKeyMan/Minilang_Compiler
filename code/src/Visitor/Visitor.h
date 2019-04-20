@@ -167,6 +167,16 @@ class SAVisitor : virtual public Visitor{
     bool goodReturn;
 };
 
+struct ValueType{
+  void* value;
+  TokenType type; //bool, int or float (needed for convertion)
+  ValueType(){};
+  ValueType(void* _value, TokenType _type){
+    value = _value;
+    type = _type;
+  };
+};
+
 // Interpreter
 class IVisitor : virtual public Visitor{
   public:
@@ -199,19 +209,15 @@ class IVisitor : virtual public Visitor{
     virtual void *visit(ASTNodeStatement *n);
     virtual void *visit(ASTNodeBlock *n);
     virtual void *visit(ASTNodeProgram *n);
+    void printSymbolTable();
+    void printValue(ValueType*);
+    ValueType *getReturnValue(){ return returnValue; }
   private:
-    struct ValueType
-    {
-      void* value;
-      TokenType type; //bool, int or float (needed for convertion)
-    };
-    
-
     vector<map<string, ValueType>> scope;
     void newScope(); // add scope as the 0 index of the vector
     void insert(string, ValueType); // in current scope
     void removeScope(); // remove scope at position 0
-    ValueType lookup(string); // lookup starting from vector 0 and going down
+    ValueType* lookup(string); // lookup starting from vector 0 and going down
     // a map, mapping function names to wherever the function is
     map <string, ASTNode*> functions;
     int lineNumber = 0;
@@ -219,7 +225,7 @@ class IVisitor : virtual public Visitor{
     bool performFunction = false;
     vector<ValueType> parameters;
     bool returnFromFunction = false;
-    ValueType returnValue;
+    ValueType *returnValue = NULL;
 };
 
 #endif // VISITOR_H
