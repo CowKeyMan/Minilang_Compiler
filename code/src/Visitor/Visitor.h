@@ -168,7 +168,7 @@ class SAVisitor : virtual public Visitor{
 };
 
 // Interpreter
-class IVIsitor : virtual public Visitor{
+class IVisitor : virtual public Visitor{
   public:
     IVisitor(){};
     virtual ~IVisitor(){};
