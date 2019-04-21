@@ -48,10 +48,11 @@ keyword_token my_keywords[] = {
 Token processAlpha(string lexeme, int lineNumber){
   for(uint8_t i = 0; i < sizeof(my_keywords)/sizeof(keyword_token); ++i){
     if(lexeme == my_keywords[i].text){
-      return Token(my_keywords[i].tok_type, lexeme, 0.0f, lineNumber);
+      if(lexeme == "true") return Token(my_keywords[i].tok_type, lexeme, 1, lineNumber);
+      return Token(my_keywords[i].tok_type, lexeme, 0, lineNumber);
     }
   }
-  return Token(ID, lexeme, 0.0f, lineNumber);
+  return Token(ID, lexeme, 0, lineNumber);
 }
 
 //struct used to assign tokens to normal punctuation

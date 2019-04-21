@@ -74,9 +74,9 @@ int main(){
   // Do Semantic Analysis pass 
   // (note: program exits during pass if this fails. reporting any necessary errors)
   IVisitor *iv = new IVisitor();
-  // tree->accept(iv);
+  tree->accept(iv);
   cout << "\nProgram finished execution with return value: ";
-  iv->printValue(iv->getReturnValue());
+  // iv->printValue(iv->getReturnValue());
   // iv->printValue(new ValueType(new bool(true), BOOL)); // example showing bool works
   cout << "\n";
   delete iv;

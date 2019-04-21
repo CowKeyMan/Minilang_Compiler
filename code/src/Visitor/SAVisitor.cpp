@@ -173,7 +173,7 @@ void *SAVisitor::visit(ASTNodeFactor *n){
     TokenType *tt = (TokenType*)lookup(name);
     if(tt == nullptr){
       cerr << "Identifier " << name << " at line ";
-	  cerr << lineNumber << " does not exist\n";
+      cerr << lineNumber << " does not exist\n";
       exit(EXIT_FAILURE);
     }
     return tt;
