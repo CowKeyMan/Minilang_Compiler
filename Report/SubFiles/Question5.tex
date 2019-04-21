@@ -23,10 +23,11 @@ ValueType is a struct which was created for this visitor:
 \begin{lstlisting}
 struct ValueType{
 	void* value;
-	TokenType type; //bool, int or float (needed for convertion)
+	TokenType type; //bool, int or float (needed for conversion)
 };
 \end{lstlisting}
 
+\textit{performFunction} is used to determine whether a function is currently being declared or performed. \textit{parameters} is used to store the values of the parameters as they are sent to a function. \textit{returnFromFunction} is set to true when a return is found, and is not set back to false until a function call ends (or the program terminates). While it is true, no statement or block is executed. \textit{returnValue} is set to something by the return statement, nd set back to null after a function returns.
 
 Next, the functionality of each node is discussed:
 \begin{itemize}
@@ -100,3 +101,15 @@ Next, the functionality of each node is discussed:
 	\item Program
 		\subitem iterates trough all statements until the end, or until \textit{returnFromFunction} is set to true
 \end{itemize}
+
+Some thing to note about the interpreter:
+\begin{itemize}
+	\item The only runtime error that can occur is division by zero, which is reported to the user if it is found.
+	\item The program itself can return a value, if a return statement is found outside a function declaration.
+	\item 3/2 is 1.5, not 1, because everything (including booleans) is treated as a float. However, if the statement:
+	\begin{center}var x : int = 3/2 \end{center}
+	is found, it is valid but x is set to 1. This approach was taken to allow as much functionality as possible, while avoiding certain ambiguities like how C/C++ says that 3/2 is 1, so you'd need to instead write 3.0/2 or 3/2.0 to get the proper 1.5.
+\end{itemize}
+
+\subsection{Example Tests}
+For this section please take a look at the showcase video uploaded in the zip file. It includes examples with errors and their corresponding error reporting and fixes, as well as more concrete examples, with proper outputs.

@@ -7,9 +7,6 @@
 #include "Lexer/Lexer.h"
 #include "Parser/Parser.h"
 
-#define TEST_LEXER
-#define FILENAME "InputFiles/Input.txt"
-
 using std::cout;
 using std::cerr;
 using std::string;
@@ -27,17 +24,24 @@ unique_ptr<Parser> parser;
 
 vector<Token> tokens;
 
-int main(){
+string filename = "";
+
+int main(int argc, char *argv[]){
+  if(argc > 1){
+    filename = argv[1];
+  }
+
   // Lexer
   file = unique_ptr<string>( new string() );
   readFile(*file);
   
+  cout << "Now lexing:\n";
   lexer = unique_ptr<Lexer>( new Lexer(*file) );
   lexer->lex();
+  cout << "Finished Lexing\n\n";
+  cout << "Obtained tokens from lexer\n\n";
+  lexer->printTokens(); // for debugging the lexer
   lexer->removeComments();
-#ifdef TEST_LEXER
-  lexer->printTokens(); // for debugging purposes
-#endif
   tokens = lexer->get_tokens();
   file.reset();
   lexer.reset(); // freeing pointer optimistions
@@ -58,6 +62,7 @@ int main(){
   ASTNode* tree = parser->getTree();
   
   // Do XML Generation pass and print it to user
+  cout << "XML represantion:\n";
   XMLVisitor *xmlv = new XMLVisitor();
   tree->accept(xmlv); // Generate the xml
   xmlv->trimXMLNewLines();
@@ -92,7 +97,7 @@ int main(){
 
 void readFile(string &s){
 
-  ifstream ifs(FILENAME);
+  ifstream ifs(filename);
 
   if(ifs){ // if the file was read properly
     string str((istreambuf_iterator<char>(ifs)), istreambuf_iterator<char>());
