@@ -182,12 +182,13 @@ void *SAVisitor::visit(ASTNodeFactor *n){
 }
 void *SAVisitor::visit(ASTNodeTerm *n){
   // first factor is taken as reference
-  TokenType *refType = (TokenType*)n->factors[0]->accept(this);
+  // set as new since it value changes, but the reference shouldnt
+  TokenType *refType = new TokenType(*(TokenType*)n->factors[0]->accept(this));
 
   for(unsigned int i = 0; i < n->multiplicativeOP.size(); ++i){
     TokenType multT = *(TokenType*)n->multiplicativeOP[i]->accept(this);
     // new type
-    TokenType *newT = (TokenType*)n->factors[i+1]->accept(this);
+    TokenType *newT = (TokenType*)n->factors[0]->accept(this);
     switch(multT){
       case TIMES:
       case DIVISION:
@@ -219,7 +220,7 @@ void *SAVisitor::visit(ASTNodeTerm *n){
 }
 void *SAVisitor::visit(ASTNodeSimpleExpression *n){
   // first factor is taken as reference
-  TokenType *refType = (TokenType*)n->terms[0]->accept(this);
+  TokenType *refType = new TokenType(*(TokenType*)n->terms[0]->accept(this));
 
   for(unsigned int i = 0; i < n->additiveOP.size(); ++i){
     TokenType addT = *(TokenType*)n->additiveOP[i]->accept(this);
@@ -256,7 +257,7 @@ void *SAVisitor::visit(ASTNodeSimpleExpression *n){
 }
 void *SAVisitor::visit(ASTNodeExpression *n){
   // first factor is taken as reference
-  TokenType *refType = (TokenType*)n->simpleExpressions[0]->accept(this);
+  TokenType *refType = new TokenType(*(TokenType*)n->simpleExpressions[0]->accept(this));
 
   // if there is a relop, then expression must be boolean
   for(unsigned int i = 0; i < n->relationalOp.size(); ++i){
@@ -290,7 +291,7 @@ void *SAVisitor::visit(ASTNodeAssignment *n){
     exit(EXIT_FAILURE);
   }
 
-  return 0;
+ return 0;
 }
 void *SAVisitor::visit(ASTNodeVariableDecl *n){
   TokenType type = *(TokenType*)n->type->accept(this);
@@ -436,7 +437,7 @@ void *SAVisitor::visit(ASTNodeFunctionDecl *n){
   if(!goodReturn){
 	n->identifier->accept(this); // to get line number again
     cerr << "Function " << *name << " at line number " << lineNumber;
-	cerr << ": not all code paths return a value\n";
+    cerr << ": not all code paths return a value\n";
     exit(EXIT_FAILURE);
   }
   goodReturn = false;

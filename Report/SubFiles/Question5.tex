@@ -30,8 +30,8 @@ struct ValueType{
 
 Next, the functionality of each node is discussed:
 \begin{itemize}
-	\item Type : void
-		\subitem Interpreter ignores this since it was already verified in the semantic analysis
+	\item Type : TokenType
+		\subitem returns FLOAT, INT or BOOL(the type) depending on its token
 	\item Literal : Value
 		\subitem The value of the literal is returned
 	\item Identifier : string (the lexeme of the identifier token)

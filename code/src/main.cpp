@@ -46,7 +46,7 @@ int main(){
 
   // Parser
   parser = unique_ptr<Parser>( new Parser(&tokens) );
-
+  cout << "\nNow parsing\n";
   bool successParse = parser->parse();
   cout << (successParse? "\nParsing successful\n" : "\nError while parsing") << "\n";
   if(! successParse){
@@ -67,6 +67,7 @@ int main(){
   // Do Semantic Analysis pass 
   // (note: program exits during pass if this fails. reporting any necessary errors)
   SAVisitor *sav = new SAVisitor();
+  cout << "\nNow running Semantic Analysis:\n";
   tree->accept(sav);
   cout << "\nSemantic Analysis Succesful\n";
   delete sav;
@@ -74,6 +75,7 @@ int main(){
   // Do Semantic Analysis pass 
   // (note: program exits during pass if this fails. reporting any necessary errors)
   IVisitor *iv = new IVisitor();
+  cout << "\nNow running program:\n";
   tree->accept(iv);
   cout << "\nProgram finished execution with return value: ";
   // iv->printValue(iv->getReturnValue());

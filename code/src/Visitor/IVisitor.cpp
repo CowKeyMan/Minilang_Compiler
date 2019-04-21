@@ -25,13 +25,9 @@ ValueType *IVisitor::lookup(string s){
   for(unsigned int i = 0; i < scope.size(); ++i){
     if(scope[i].count(s)){ // if key exists
       ValueType *vt = &scope[i].find(s)->second;
-      if(vt->type == INT){
-        vt->value = new float( (float)*(int*)&vt->value ); // everything is a float
-      }
       return vt;
     }
   }
-  return nullptr;
 }
 void IVisitor::printSymbolTable(){
   cout << "Symbol Table:\n";
@@ -74,8 +70,22 @@ void IVisitor::printValue(ValueType* vt){
 }
 
 void *IVisitor::visit(ASTNodeType *n){
+  TokenType *tt = nullptr;
+  switch(n->token->type){
+    case TYPE_FLOAT:
+      tt = new TokenType(FLOAT);
+    break;
+    case TYPE_INT:
+      tt = new TokenType(INT);
+    break;
+    case TYPE_BOOL:
+      tt = new TokenType(BOOL);
+    break;
+    default:
+    break;
+  }
   lineNumber = n->token->lineNumber;
-  return 0;
+  return (TokenType*)tt;
 }
 void *IVisitor::visit(ASTNodeLiteral *n){
   lineNumber = n->token->lineNumber;
@@ -251,10 +261,11 @@ void *IVisitor::visit(ASTNodeAssignment *n){
   ValueType *vt = lookup(name);
 
   vt->value = ((ValueType*)n->expression->accept(this))->value;
-
+  
   if(vt->type == INT){
     // if it is an int, first convert it to a float, then to an int then to a float again
-    vt->value = new float((int)(*(float*)vt->value));
+    int i = (int)(*(float*)vt->value);
+    vt->value = new float(i);
   }
 
   return 0;
@@ -264,16 +275,20 @@ void *IVisitor::visit(ASTNodeVariableDecl *n){
   string name = *(string*)n->identifier->accept(this);
 
   ValueType *vt = new ValueType(((ValueType*)n->expression->accept(this))->value, type);
+  
   if(vt->type == INT){
     // if it is an int, first convert it to a float, then to an int then to a float again
-    vt->value = new float((int)(*(float*)vt->value));
+    int i = (int)(*(float*)vt->value);
+    vt->value = new float(i);
   }
+
   insert( name , *vt );
 
   return 0;
 }
 void *IVisitor::visit(ASTNodePrintStatement* n){
   printValue((ValueType*)n->expression->accept(this));
+  return 0;
 }
 void *IVisitor::visit(ASTNodeReturnStatement *n){
   returnValue = (ValueType*)n->expression->accept(this);
@@ -282,9 +297,9 @@ void *IVisitor::visit(ASTNodeReturnStatement *n){
   return 0;
 }
 void *IVisitor::visit(ASTNodeIfStatement *n){
-  float b = *(float*)((ValueType*)n->expression->accept(this))->value;
+  float boolean = *(float*)((ValueType*)n->expression->accept(this))->value;
 
-  if(b){
+  if(boolean){
     newScope();
     n->block->accept(this);
     removeScope();
@@ -296,10 +311,63 @@ void *IVisitor::visit(ASTNodeIfStatement *n){
     }
   }
 }
-void *IVisitor::visit(ASTNodeForStatement *n){}
-void *IVisitor::visit(ASTNodeFormalParam *n){}
-void *IVisitor::visit(ASTNodeFormalParams *n){}
+void *IVisitor::visit(ASTNodeForStatement *n){
+  newScope();
+  if(n->variableDecl) n->variableDecl->accept(this);
+
+  float boolean = *(float*)((ValueType*)n->expression->accept(this))->value;
+  while(boolean == true){
+    newScope();
+    n->block->accept(this);
+    if(n->assignment) n->assignment->accept(this);
+    boolean = *(float*)((ValueType*)n->expression->accept(this))->value;
+    removeScope();
+  }
+  
+  removeScope();
+
+  return 0;
+}
+void *IVisitor::visit(ASTNodeFormalParam *n){
+  return (string*)n->identifier->accept(this);
+}
+void *IVisitor::visit(ASTNodeFormalParams *n){
+  vector<string> *names = new vector<string>();
+  for(unsigned int i = 0; i < n->formalParams.size(); ++i){
+    names->push_back( *(string*)n->formalParams[i]->accept(this) );
+  }
+  return (vector<string>*)names;
+}
 void *IVisitor::visit(ASTNodeFunctionDecl *n){}
-void *IVisitor::visit(ASTNodeStatement *n){}
-void *IVisitor::visit(ASTNodeBlock *n){}
-void *IVisitor::visit(ASTNodeProgram *n){}
+void *IVisitor::visit(ASTNodeStatement *n){
+  if(returnFromFunction == false){
+    return n->statement->accept(this);
+  }
+}
+void *IVisitor::visit(ASTNodeBlock *n){
+  if(returnFromFunction == false){
+    for(unsigned int i = 0; i < n->statements.size(); ++i){
+      n->statements[i]->accept(this);
+    }
+  }
+  return 0;
+}
+void *IVisitor::visit(ASTNodeProgram *n){
+  newScope();
+  // visit function declerations first
+  for(unsigned int i = 0; i < n->statements.size(); ++i){
+    ASTNodeStatement* n2 = dynamic_cast<ASTNodeStatement*>(n->statements[i]);
+    if(dynamic_cast<ASTNodeFunctionDecl*>(n2->statement)){
+      n->statements[i]->accept(this);
+    }
+  }
+  for(unsigned int i = 0; i < n->statements.size(); ++i){
+    ASTNodeStatement* n2 = dynamic_cast<ASTNodeStatement*>(n->statements[i]);
+    if(! dynamic_cast<ASTNodeFunctionDecl*>(n2->statement)){
+      n->statements[i]->accept(this);
+    }
+  }
+  removeScope();
+
+  return 0;
+}
