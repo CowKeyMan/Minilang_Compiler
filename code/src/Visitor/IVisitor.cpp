@@ -28,6 +28,7 @@ ValueType *IVisitor::lookup(string s){
       return vt;
     }
   }
+  return nullptr;
 }
 void IVisitor::printSymbolTable(){
   cout << "Symbol Table:\n";
@@ -118,13 +119,31 @@ void *IVisitor::visit(ASTNodeRelationalOp *n){
   return (TokenType*)&n->token->type;
 }
 void *IVisitor::visit(ASTNodeActualParams *n){
-  vector<ValueType*> *values = new vector<ValueType*>();
+  vector<ValueType> *values = new vector<ValueType>();
   for(unsigned int i = 0; i < n->expressions.size(); ++i){
-    values->push_back((ValueType*)n->expressions[i]->accept(this));
+    values->push_back(*(ValueType*)n->expressions[i]->accept(this));
   }
-  return (vector<ValueType*>*)values;
+
+  return (vector<ValueType>*)values;
 }
-void *IVisitor::visit(ASTNodeFunctionCall *n){}
+void *IVisitor::visit(ASTNodeFunctionCall *n){
+  performFunction = true;
+
+  if(n->actualParams){
+    parameters = vector<ValueType>(*(vector<ValueType>*)n->actualParams->accept(this));
+  }
+
+  functions[*(string*)n->identifier->accept(this)]->accept(this);
+
+  performFunction = false;
+  parameters = vector<ValueType>();
+  returnFromFunction = false;
+
+  ValueType *vt = new ValueType(*returnValue);
+  returnValue = NULL;
+
+  return vt;
+}
 void *IVisitor::visit(ASTNodeSubExpression *n){
   return n->expression->accept(this);
 }
@@ -291,7 +310,7 @@ void *IVisitor::visit(ASTNodePrintStatement* n){
   return 0;
 }
 void *IVisitor::visit(ASTNodeReturnStatement *n){
-  returnValue = (ValueType*)n->expression->accept(this);
+  returnValue = new ValueType(*(ValueType*)n->expression->accept(this));
   returnFromFunction = true;
 
   return 0;
@@ -310,6 +329,8 @@ void *IVisitor::visit(ASTNodeIfStatement *n){
       removeScope();
     }
   }
+
+  return 0;
 }
 void *IVisitor::visit(ASTNodeForStatement *n){
   newScope();
@@ -338,11 +359,28 @@ void *IVisitor::visit(ASTNodeFormalParams *n){
   }
   return (vector<string>*)names;
 }
-void *IVisitor::visit(ASTNodeFunctionDecl *n){}
+void *IVisitor::visit(ASTNodeFunctionDecl *n){
+  if(performFunction == false){
+    string name = *(string*)n->identifier->accept(this);
+    functions[name] = n;
+  }else{
+    newScope();
+    if(n->formalParams){
+      vector<string> params = *(vector<string>*)n->formalParams->accept(this);
+      for(unsigned int i = 0; i < params.size(); ++i){
+        insert( params[i], parameters[i] );
+      }
+    }
+    n->block->accept(this);
+    removeScope();
+  }
+  return 0;
+}
 void *IVisitor::visit(ASTNodeStatement *n){
   if(returnFromFunction == false){
     return n->statement->accept(this);
   }
+  return 0;
 }
 void *IVisitor::visit(ASTNodeBlock *n){
   if(returnFromFunction == false){
