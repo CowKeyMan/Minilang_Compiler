@@ -24,7 +24,11 @@ void IVisitor::removeScope(){
 ValueType *IVisitor::lookup(string s){
   for(unsigned int i = 0; i < scope.size(); ++i){
     if(scope[i].count(s)){ // if key exists
-      return &scope[i].find(s)->second;
+      ValueType *vt = &scope[i].find(s)->second;
+      if(vt->type == INT){
+        vt->value = new float( (float)*(int*)&vt->value ); // everything is a float
+      }
+      return vt;
     }
   }
   return nullptr;
@@ -50,17 +54,15 @@ void IVisitor::printValue(ValueType* vt){
   if(vt != NULL){
     switch(vt->type){
       case BOOL:
-        if(*(bool*)vt->value == true){
+        if(*(float*)vt->value == 1){
           cout << "true";
         }else{
           cout << "false";
         }
       break;
+      case INT:
       case FLOAT:
         cout << *(float*)vt->value;
-      break;
-      case INT:
-        cout << *(int*)vt->value;
       break;
       default:
       break;
@@ -81,8 +83,6 @@ void *IVisitor::visit(ASTNodeLiteral *n){
   switch(n->token->type){
     case BOOL:
     case INT:
-      vt->value = new int((int)(*(float*)&n->token->number));
-    break;
     case FLOAT:
       vt->value = (float*)&n->token->number;
     break;
@@ -118,7 +118,23 @@ void *IVisitor::visit(ASTNodeFunctionCall *n){}
 void *IVisitor::visit(ASTNodeSubExpression *n){
   return n->expression->accept(this);
 }
-void *IVisitor::visit(ASTNodeUnary *n){}
+void *IVisitor::visit(ASTNodeUnary *n){
+  ValueType *expr = (ValueType*)n->expression->accept(this);
+
+  TokenType unary = *(TokenType*)n->token->type;
+  switch(unary){
+    case MINUS:
+      expr->value = new float( -(float)*(float*)&expr->value );
+    break;
+    case NOT:
+      expr->value = new float( !(float)*(float*)&expr->value );
+    break;
+    default:
+    break;
+  }
+
+  return (ValueType*)expr;
+}
 void *IVisitor::visit(ASTNodeFactor *n){
   if(ASTNodeIdentifier* n2 = dynamic_cast<ASTNodeIdentifier*>(n->node)){
     string name = *(string*)n2->accept(this);
@@ -138,25 +154,19 @@ void *IVisitor::visit(ASTNodeTerm *n){
     switch(multT){
       void *toReturn;
       case TIMES:
-        if(refValue->type == INT && newValue->type == INT){
-          toReturn = new int(*(int*)refValue->value * *(int*)newValue->value);
-          refValue = (ValueType*)(new ValueType(toReturn, INT));
-        }else{
-          toReturn = new float(*(float*)refValue->value * *(float*)newValue->value);
-          refValue = (ValueType*)(new ValueType(toReturn, FLOAT));
-        }
+        toReturn = new float(*(float*)refValue->value * *(float*)newValue->value);
+        refValue = (ValueType*)(new ValueType(toReturn, FLOAT));
       break;
       case DIVISION:
-        if(refValue->type == INT && newValue->type == INT){
-          toReturn = new int(*(int*)refValue->value / *(int*)newValue->value);
-          refValue = (ValueType*)(new ValueType(toReturn, INT));
-        }else{
-          toReturn = new float(*(float*)refValue->value / *(float*)newValue->value);
-          refValue = (ValueType*)(new ValueType(toReturn, FLOAT));
+        if(*(float*)newValue->value == 0){
+          cerr << "Runtime error division by 0 at line " << lineNumber;
+          exit(EXIT_FAILURE);
         }
+        toReturn = new float(*(float*)refValue->value / *(float*)newValue->value);
+        refValue = (ValueType*)(new ValueType(toReturn, FLOAT));
       break;
       case AND:
-        toReturn = new bool(*(bool*)refValue->value && *(bool*)newValue->value);
+        toReturn = new float(*(float*)refValue->value && *(float*)newValue->value);
         refValue = (ValueType*)(new ValueType(toReturn, BOOL));
       break;
       default:
@@ -177,25 +187,15 @@ void *IVisitor::visit(ASTNodeSimpleExpression *n){
     switch(multT){
       void *toReturn;
       case PLUS:
-        if(refValue->type == INT && newValue->type == INT){
-          toReturn = new int(*(int*)refValue->value + *(int*)newValue->value);
-          refValue = (ValueType*)(new ValueType(toReturn, INT));
-        }else{
-          toReturn = new float(*(float*)refValue->value + *(float*)newValue->value);
-          refValue = (ValueType*)(new ValueType(toReturn, FLOAT));
-        }
+        toReturn = new float(*(float*)refValue->value + *(float*)newValue->value);
+        refValue = (ValueType*)(new ValueType(toReturn, FLOAT));
       break;
       case MINUS:
-        if(refValue->type == INT && newValue->type == INT){
-          toReturn = new int(*(int*)refValue->value - *(int*)newValue->value);
-          refValue = (ValueType*)(new ValueType(toReturn, INT));
-        }else{
-          toReturn = new float(*(float*)refValue->value - *(float*)newValue->value);
-          refValue = (ValueType*)(new ValueType(toReturn, FLOAT));
-        }
+        toReturn = new float(*(float*)refValue->value - *(float*)newValue->value);
+        refValue = (ValueType*)(new ValueType(toReturn, FLOAT));
       break;
       case OR:
-        toReturn = new bool(*(bool*)refValue->value || *(bool*)newValue->value);
+        toReturn = new float(*(float*)refValue->value || *(float*)newValue->value);
         refValue = (ValueType*)(new ValueType(toReturn, BOOL));
       break;
       default:
@@ -214,27 +214,27 @@ void *IVisitor::visit(ASTNodeExpression *n){
     // new type
     ValueType *newValue = (ValueType*)n->simpleExpressions[i+1]->accept(this);
 
-    bool *b;
+    float *b;
 
     switch (tt)
     {
       case ST:
-        b = new bool( *(float*)refValue->value < *(float*)newValue->value );
+        b = new float( *(float*)refValue->value < *(float*)newValue->value );
       break;
       case GT:
-        b = new bool( *(float*)refValue->value > *(float*)newValue->value );
+        b = new float( *(float*)refValue->value > *(float*)newValue->value );
       break;
       case EQQ:
-        b = new bool( *(float*)refValue->value == *(float*)newValue->value );
+        b = new float( *(float*)refValue->value == *(float*)newValue->value );
       break;
       case NE:
-        b = new bool( *(float*)refValue->value != *(float*)newValue->value );
+        b = new float( *(float*)refValue->value != *(float*)newValue->value );
       break;
       case SE:
-        b = new bool( *(float*)refValue->value <= *(float*)newValue->value );
+        b = new float( *(float*)refValue->value <= *(float*)newValue->value );
       break;
       case GE:
-        b = new bool( *(float*)refValue->value >= *(float*)newValue->value );
+        b = new float( *(float*)refValue->value >= *(float*)newValue->value );
       break;
       default:
       break;
@@ -245,13 +245,57 @@ void *IVisitor::visit(ASTNodeExpression *n){
 
   return (ValueType*) refValue;
 }
-void *IVisitor::visit(ASTNodeAssignment *n){}
-void *IVisitor::visit(ASTNodeVariableDecl *n){}
+void *IVisitor::visit(ASTNodeAssignment *n){
+  string name = *(string*)n->identifier->accept(this);
+
+  ValueType *vt = lookup(name);
+
+  vt->value = ((ValueType*)n->expression->accept(this))->value;
+
+  if(vt->type == INT){
+    // if it is an int, first convert it to a float, then to an int then to a float again
+    vt->value = new float((int)(*(float*)vt->value));
+  }
+
+  return 0;
+}
+void *IVisitor::visit(ASTNodeVariableDecl *n){
+  TokenType type = *(TokenType*)n->type->accept(this);
+  string name = *(string*)n->identifier->accept(this);
+
+  ValueType *vt = new ValueType(((ValueType*)n->expression->accept(this))->value, type);
+  if(vt->type == INT){
+    // if it is an int, first convert it to a float, then to an int then to a float again
+    vt->value = new float((int)(*(float*)vt->value));
+  }
+  insert( name , *vt );
+
+  return 0;
+}
 void *IVisitor::visit(ASTNodePrintStatement* n){
   printValue((ValueType*)n->expression->accept(this));
 }
-void *IVisitor::visit(ASTNodeReturnStatement *n){}
-void *IVisitor::visit(ASTNodeIfStatement *n){}
+void *IVisitor::visit(ASTNodeReturnStatement *n){
+  returnValue = (ValueType*)n->expression->accept(this);
+  returnFromFunction = true;
+
+  return 0;
+}
+void *IVisitor::visit(ASTNodeIfStatement *n){
+  float b = *(float*)((ValueType*)n->expression->accept(this))->value;
+
+  if(b){
+    newScope();
+    n->block->accept(this);
+    removeScope();
+  }else{
+    if(n->elseBlock){
+      newScope();
+      n->elseBlock->accept(this);
+      removeScope();
+    }
+  }
+}
 void *IVisitor::visit(ASTNodeForStatement *n){}
 void *IVisitor::visit(ASTNodeFormalParam *n){}
 void *IVisitor::visit(ASTNodeFormalParams *n){}

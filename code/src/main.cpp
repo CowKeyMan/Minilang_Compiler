@@ -77,7 +77,7 @@ int main(){
   tree->accept(iv);
   cout << "\nProgram finished execution with return value: ";
   // iv->printValue(iv->getReturnValue());
-  // iv->printValue(new ValueType(new bool(true), BOOL)); // example showing bool works
+  iv->printValue(iv->getReturnValue()); // example showing bool works
   cout << "\n";
   delete iv;
 
