@@ -150,13 +150,13 @@ void *IVisitor::visit(ASTNodeSubExpression *n){
 void *IVisitor::visit(ASTNodeUnary *n){
   ValueType *expr = (ValueType*)n->expression->accept(this);
 
-  TokenType unary = *(TokenType*)n->token->type;
+  TokenType unary = n->token->type;
   switch(unary){
     case MINUS:
-      expr->value = new float( -(float)*(float*)&expr->value );
+      expr->value = new float( -(float)*(float*)expr->value );
     break;
     case NOT:
-      expr->value = new float( !(float)*(float*)&expr->value );
+      expr->value = new float( !(float)*(float*)expr->value );
     break;
     default:
     break;
@@ -188,7 +188,7 @@ void *IVisitor::visit(ASTNodeTerm *n){
       break;
       case DIVISION:
         if(*(float*)newValue->value == 0){
-          cerr << "Runtime error division by 0 at line " << lineNumber;
+          cerr << "Runtime error division by 0 at line " << lineNumber << "\n";
           exit(EXIT_FAILURE);
         }
         toReturn = new float(*(float*)refValue->value / *(float*)newValue->value);
@@ -337,7 +337,7 @@ void *IVisitor::visit(ASTNodeForStatement *n){
   if(n->variableDecl) n->variableDecl->accept(this);
 
   float boolean = *(float*)((ValueType*)n->expression->accept(this))->value;
-  while(boolean == true){
+  while(boolean == true && returnFromFunction == false){
     newScope();
     n->block->accept(this);
     if(n->assignment) n->assignment->accept(this);

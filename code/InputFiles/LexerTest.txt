@@ -7,4 +7,6 @@ if else for while fn return bool float int var
 // hello world
 /* hello 
 world
-2 */
+multiline */
+
+//$ // comment this to avoid lexing error
