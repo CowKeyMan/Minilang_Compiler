@@ -1,10 +1,10 @@
 \section{Task 1 - Lexer}
 \subsection{Explanation and Implementation}
-The Lexer tokenizes the input stream by taking in character by character, grouping then into ordered tokens. A token is a tuple of (Lexeme, Attribute).
+The Lexer tokenizes the input stream by taking in character by character, grouping them into ordered tokens. A token is a tuple of (Lexeme, Attribute). A third attribute 'line number' is also added in the implementation for debugging purposes, both by the developer of the language as well as anyone using the language.
 
-For the implementation, the entire file string is traversed and a vector of tokens is created. Errors are reported by line number. For the sake of debugging future errors (not lexer related), the tokens are also given a line number variable. The reason for this is so that the file can be closed and the string discarded as soon as the lexer finishes.
+For the implementation, the entire file string is traversed and a vector of tokens is created. The reason for this is so that the file can be closed and the string discarded as soon as the lexer finishes. Any errors are reported by line number.
 
-The following transition groups fo the characters were chosen (This is also the Classifier Table):
+The following transition groups for the characters were chosen (This is also the Classifier Table):
 \begin{enumerate}
 	\item Singular punctuation (punctuation which exists on its own): + - ( ) \textbraceleft \textbraceright ; $\colon$ ,
 	\item Exclamation point: !
@@ -21,11 +21,13 @@ The following transition groups fo the characters were chosen (This is also the 
 \end{enumerate}
 
 The following diagram is the state transition diagram DFA. Note: 'not X' means any other character which is not X.
+\begin{center}
 \begin{figure}[H]
 	\centering
-	\includegraphics[scale=0.22]{Images/Q1_StateTransitionDiagram.png}
+	\includegraphics[scale=0.29]{Images/Q1_StateTransitionDiagram.png}
 	\caption{DFA for Lexer}
 \end{figure}
+\end{center}
 
 As a table, it looks like this in the code. The comments help to understand it better \cite{StateTransitionTable}:
 \begin{figure}[H]

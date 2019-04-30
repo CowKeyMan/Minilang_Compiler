@@ -85,11 +85,44 @@ The parser takes the tokens and puts them into a parse tree based on the grammar
 
 Since it is an Abstract Syntax tree, the following tokens are matched and immediately discarded by the parser: OPEN\un BRACKET, CLOSED\un BRACKET, OPEN\un BRACE, CLOSED \un BRACE, SEMI\un COLON, COLON, COMMA, FN, VAR, RETURN, IF, ELSE, FOR, PRINT
 
-From the above, it is shown that there are 25 possible types of nodes. This is because the tree is not fully abstract. The advantage of this is that operator precedence for expressions is handled automatically by the grammar, while the disadvantage is that it leads to more complexity, since each type of node needs to be catered for.
+From the above, it is shown that there are 26 possible types of nodes. This is because the tree is not fully abstract. The advantage of this is that operator precedence for expressions is handled automatically by the grammar, while the disadvantage is that it leads to more complexity, since each type of node needs to be catered for.
 
 Regarding implementation, the \textit{Parser} class receives the tokens and stores them in a \textit{TokenManager} so that they are managed by the functions in this manager. The \textit{Parser} class also holds the root node of the recursive AST which will be generated when the \textit{parse()} method is called.
 
-The 26 ASTNodes classes (27 counting the abstract class used for polymorphism) each have a parse method to parse their own form accordingly, and store what is parsed in their own way. For example, the \textit{Type} ASTNode, will store a token whose type is TYPE\un FLOAT, TYPE\un INT or TYPE\un BOOL. Meanwhile, a program will contain a list (vector) of statements.
+
+The parser class:
+\begin{lstlisting}[language=C++]
+class Parser{
+	private:
+		TokenManager* tokenManager;
+		ASTNode* tree;
+	public:
+		Parser(vector<Token> *tokens);
+		~Parser();
+		bool parse();
+		ASTNode *getTree() { return tree; }
+		int getTokenManagerIndex() { return tokenManager->index(); }
+};
+\end{lstlisting}
+
+The Token Manager:
+\begin{lstlisting}
+class TokenManager{
+	private:
+		unsigned int tokenIndex = 0; // The index, for the token queue
+		vector<Token> *tokens; // Token queue
+	public:
+		TokenManager(vector<Token> *_tokens){ tokens = _tokens; };
+		Token *currentToken();
+		Token *nextToken(); // Dequeue and return next token
+		Token *peekToken(int steps); // Peek more than 1 token away
+		Token *peekToken(); // See what the next token is without dequeuing it
+		Token *peekTokenUnsafe(int steps); // Returns null ptr rather thn exiting if there is no token
+		int index(){ return tokenIndex; }
+};
+\end{lstlisting}
+
+The 26 ASTNodes classes (27 counting the abstract class used for polymorphism) each have a parse method to parse their own form accordingly, and store what is parsed in their own way. For example, the \textit{Type} ASTNode, will store a token whose type is TYPE\un FLOAT, TYPE\un INT or TYPE\un BOOL. Meanwhile, a program will contain a list (vector) of statement nodes.
 
 Each parse method for the ASTNodes will return true or false, to tell the callback recursion whether it was successful or not. Since a predictive parser with follow sets is used, then all should return true, and if one is false, then parsing fails and the \textbf{error and the line number} is reported to the user. The function \textit{match(TokenType)} is used to check if  token is matched. It is used especially in cases where a bracket needs to be matched. If the required token type is not found, then the error that the required token was not found is reported to the user and the parser exits.
 \\ \\
@@ -167,4 +200,4 @@ The first thing to notice is that an IF statement has three children and none of
 
 
 \subsection{Example Test}
-The parse method returns true or false, and it is difficult to visualise the tree, so instead a visualization of this process can be shown in the next section XMLGeneration, for a proper visualization of the tree.
+The parse method returns true or false, and it is difficult to visualise the tree, so instead, a visualization of this process can be shown in the next section XMLGeneration, for a proper visualization of the tree.

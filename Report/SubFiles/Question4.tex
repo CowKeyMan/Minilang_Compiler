@@ -24,7 +24,7 @@ int ifsReturnIndex = -1;
 bool goodReturn;
 \end{lstlisting}
 
-The scope vector is treated like a stack, but created as a vector to be iterated over easily. New entries are inserted at the front (position 0) of the vector and same thing with deletions. When iterating, iteration also starts from the front, so new entries cover shadow old ones (scope shadowing). The scope together with the functions map, together make the symbol table.
+The scope vector is treated like a stack, but created as a vector to be iterated over easily. New entries are inserted at the front (position 0) of the vector and same thing with deletions. When iterating, iteration also starts from the front, so new entries cover old ones of the same name (scope shadowing). The scope together with the functions map, together make the symbol table.
 \\\\
 Next, the visit classes are discussed. Each one of these, although described as a \textit{void*}, has some form of concrete return value, and not all of them are the same. The functionality of each method and their return type is discussed below, for each type of ASTNode visit method:
 \begin{itemize}
@@ -102,23 +102,22 @@ Next, the visit classes are discussed. Each one of these, although described as 
 		\subitem validate the list of statements. Starts with function declarations.
 \end{itemize}
 
-Note: scopes were not started and ended in the 'Block' node because of function declarations.
+Note: Scopes were not started and ended in the 'Block' node because of function declarations and the need to initialise the variables within the block.
 
 \subsubsection{Semantic Analysis Features}
 This section is to discuss some features including additional extras in the semantic analyser implementation
 \\\\
-The first feature is that error reporting includes precise errors as well as the included line number where the error occurred. This was made by having a global line number variable and updating it every time a node with a token is visited.
+The first feature is that error reporting includes (mostly) precise errors as well as the included line number where the error occurred. This was made by having a global line number variable and updating it every time a node with a token is visited.
 \\\\
 Second extra feature is that type conversion from integers to floats is made available. So float types can accept integers, however integers cannot accept floats. This was made trough type checking.
 \\\\
-The program is allowed to exit abruptly, hence why return statements can be accepted from outside a function.
+The program is allowed to exit before it finishes all the lines, hence why return statements can be accepted from outside a function.
 \\\\
 A function declaration is checked to make sure \textbf{all code paths return a proper value}. This means that if a return exists in an if, but no corresponding return in an else or outside the if statement exists, the function is declared semantically incorrect. Returns in for loops are also not considered to be enough for a function to be valid for the semantic analyser. This was made possible trough the use of a stack and a few global variables, in conjunction with checks when returns are made inside of functions.
 \\\\
-Important to note is that function names cannot be overridden anywhere in the code.
-\\\\
 Functions can only be defined in the outer scope
-\\\\ Functions can be used before they are declared, because their declaration is performed first. Hence no other variable anywhere in the program may use the function's name.
+\\\\ 
+Functions can be used before they are declared, because their declaration is performed first. Hence no other variable anywhere in the program may use the function's name.
 
 \subsection{Example Tests}
 

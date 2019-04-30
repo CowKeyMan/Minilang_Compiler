@@ -3,7 +3,7 @@
 
 The visitor design pattern is used for the XML generator. Each ASTNode accepts the visitor class's \textit{visit} function through the \textit{accept} function.
 
-An XMLVisitor class was created. This contains a string stream called \textit{xml} which will contain the generated string after the tree is all visited. The \textit{numberOfTabs} integer holds the number of indentation number which should be applied at each line. Note: The visit methods are of type \textit{void*} in order to cater for further visitors. For this visitor however, they all return NULL, or rather, 0.
+An XMLVisitor class was created. This contains a string stream called \textit{xml} which will contain the generated string after the tree is all visited. The \textit{numberOfTabs} integer holds the number of indentations which should be applied at each line. Note: The visit methods are of type \textit{void*} in order to cater for further visitors requiring to be type-casted to different types. For this visitor however, they all return NULL, or rather, 0.
 
 \begin{lstlisting}[language=C++]
 class XMLVisitor : virtual public Visitor{
@@ -51,7 +51,7 @@ void *XMLVisitor::visit(ASTNodeMultiplicativeOp *n){
 	xml << "OP=\"" << n->token->lexeme << "\"";
 }
 \end{lstlisting}
-The above is for a multiplicative operator. So '*' would be shown as 'OP="*"'.
+The above is for a multiplicative operator. So '*' would be shown as ' OP="*" '.
 \\\\
 This is also a recursive method, so the program node (which contains a list of statements), iteratively goes trough the statements and calls the accept statement for the visitor on them as well, creating recursion.
 
@@ -63,7 +63,7 @@ void *XMLVisitor::visit(ASTNodeProgram *n){
 }
 \end{lstlisting}
 
-After finishing, the xml string stream can be either outputted to the screen or stored in a separate file.
+After finishing, the xml string stream can be either outputted to the screen or stored in a separate file. In this implementation it is just outputted tot the screen.
 
 \subsection{Example Test 1}
 Parsing the following as input(parsing as a program node):
